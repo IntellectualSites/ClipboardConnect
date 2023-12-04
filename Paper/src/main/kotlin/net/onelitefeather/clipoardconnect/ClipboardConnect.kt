@@ -1,4 +1,14 @@
 package net.onelitefeather.clipoardconnect
 
-class ClipboardConnect {
+import org.bukkit.plugin.java.JavaPlugin
+
+class ClipboardConnect : JavaPlugin() {
+
+    override fun onEnable() {
+        super.onEnable()
+    }
+
+    override fun onDisable() {
+        super.onDisable()
+    }
 }

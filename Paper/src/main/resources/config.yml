@@ -1,0 +1,5 @@
+server:
+  identity: 'Server-A'
+  url: 'http://localhost:9797'
+  username: ''
+  password: '''
