@@ -3,6 +3,7 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 plugins {
     kotlin("jvm") version "1.9.20"
     alias(libs.plugins.paper.yml)
+    alias(libs.plugins.publishdata)
 }
 
 group = "net.onelitefeather"
@@ -36,4 +37,8 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
+}
+
+publishData {
+    addBuildData = true
 }
