@@ -14,8 +14,23 @@ include("Paper")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
+            library("worldedit", "com.sk89q.worldedit:worldedit-bukkit:7.2.17")
+
+            library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.39")
+            library("fawe.core", "com.intellectualsites", "FastAsyncWorldEdit-Core").withoutVersion()
+            library("fawe.bukkit", "com.intellectualsites", "FastAsyncWorldEdit-Bukkit").withoutVersion()
+
+            library("cloud.bom", "cloud.commandframework", "cloud-bom").version("1.8.4")
+            library("cloud.kotlin", "cloud.commandframework", "cloud-kotlin-extensions").withoutVersion()
+            library("cloud.paper", "cloud.commandframework", "cloud-paper").withoutVersion()
+            library("cloud.minecraft.extras", "cloud.commandframework", "cloud-minecraft-extras").withoutVersion()
+
+            library("kotlin.test", "org.jetbrains.kotlin", "kotlin-test").withoutVersion()
+            library("aerogel", "dev.derklaro.aerogel", "aerogel").version("2.1.0")
+            library("paper", "io.papermc.paper", "paper-api").version("1.20.2-R0.1-SNAPSHOT")
             plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
             plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
+            plugin("shadow", "com.github.johnrengelman.shadow").version("8.1.1")
         }
     }
 }

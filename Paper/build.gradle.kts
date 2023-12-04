@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     alias(libs.plugins.paper.yml)
     alias(libs.plugins.publishdata)
+    alias(libs.plugins.shadow)
 }
 
 group = "net.onelitefeather"
@@ -12,10 +13,21 @@ version = "1.0.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    implementation(platform(libs.fawe.bom))
+    compileOnly(libs.fawe.core)
+    compileOnly(libs.fawe.bukkit)
+    compileOnly(libs.worldedit)
+    implementation(platform(libs.cloud.bom))
+    implementation(libs.cloud.kotlin)
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.minecraft.extras)
+    implementation(libs.aerogel)
+    compileOnly(libs.paper)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks {
