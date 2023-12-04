@@ -1,3 +1,4 @@
+import de.chojo.Repo
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
@@ -26,8 +27,15 @@ kotlin {
     jvmToolchain(17)
 }
 
+publishData {
+    addBuildData()
+    addRepo(Repo.main("","",true))
+    addRepo(Repo.snapshot("","",true))
+}
+
 paper {
     main = "net.onelitefeather.clipoardconnect.ClipboardConnect"
+    version = publishData.getVersion(true)
     apiVersion = "1.19"
     authors = listOf("TheMeinerLP", "OneLiteFeatherNET")
 
@@ -39,6 +47,3 @@ paper {
     }
 }
 
-publishData {
-    addBuildData = true
-}
