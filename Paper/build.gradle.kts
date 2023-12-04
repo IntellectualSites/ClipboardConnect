@@ -2,7 +2,7 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
     kotlin("jvm") version "1.9.20"
-    id("net.minecrell.plugin-yml.paper") version "0.6.0"
+    alias(libs.plugins.paper.yml)
 }
 
 group = "net.onelitefeather"

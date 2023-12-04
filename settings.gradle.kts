@@ -3,3 +3,11 @@ plugins {
 }
 rootProject.name = "ClipboardConnect"
 include("Paper")
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("libs") {
+            plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
+        }
+    }
+}
