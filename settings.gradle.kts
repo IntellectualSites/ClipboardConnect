@@ -42,7 +42,7 @@ dependencyResolutionManagement {
             plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
             plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
             plugin("shadow", "com.github.johnrengelman.shadow").version("8.1.1")
-            plugin("run.server","xyz.jpenilla.run-paper").version("2.2.0")
+            plugin("run.server","xyz.jpenilla.run-paper").version("2.2.2")
             plugin("publish.hangar","io.papermc.hangar-publish-plugin").version("0.0.5")
             plugin("publish.modrinth","com.modrinth.minotaur").version("2.+")
             plugin("changelog", "org.jetbrains.changelog").version("2.2.0")
