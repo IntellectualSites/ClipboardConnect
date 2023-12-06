@@ -1,6 +1,8 @@
 package net.onelitefeather.clipboardconnect.services
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.luben.zstd.ZstdInputStream
+import com.github.luben.zstd.ZstdOutputStream
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extension.platform.Actor
@@ -75,7 +77,8 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         val session = WorldEdit.getInstance().sessionManager.get(actor)
         val clipboardHolder = session.clipboard ?: return false
         val clipboard = clipboardHolder.clipboard
-        BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(stream.outputStream).use {
+
+        BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(ZstdOutputStream(stream.outputStream)).use {
             it.write(clipboard)
             plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
         }
@@ -97,7 +100,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 )
             )
             val session = WorldEdit.getInstance().sessionManager.get(actor)
-            BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(stream.inputStream).use {
+            BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(ZstdInputStream(stream.inputStream)).use {
                 plugin.componentLogger.debug(
                     MiniMessage.miniMessage().deserialize(
                         "<green>Clipboard from <actor> was successful written into a clipboard holder",
