@@ -26,15 +26,15 @@ repositories {
 dependencies {
     compileOnly(libs.worldedit)
 
-    implementation(platform(libs.cloud.bom))
-    implementation(libs.cloud.paper)
-    implementation(libs.cloud.annotations)
-    implementation(libs.cloud.minecraft.extras)
+    paperLibrary(platform(libs.cloud.bom))
+    paperLibrary(libs.cloud.paper)
+    paperLibrary(libs.cloud.annotations)
+    paperLibrary(libs.cloud.minecraft.extras)
 
-    implementation(libs.aerogel)
-    implementation(libs.kotlin.jackson)
-    implementation(libs.redis)
-    implementation(libs.zstd)
+    paperLibrary(libs.aerogel)
+    paperLibrary(libs.kotlin.jackson)
+    paperLibrary(libs.redis)
+    paperLibrary(libs.zstd)
     compileOnly(libs.paper)
     testImplementation(libs.kotlin.test)
 }
@@ -71,10 +71,12 @@ publishData {
 
 paper {
     main = "net.onelitefeather.clipboardconnect.ClipboardConnect"
+    loader = "net.onelitefeather.clipboardconnect.ClipboardConnectLoader"
     version = publishData.getVersion(true)
     apiVersion = "1.19"
     name = "ClipboardConnect"
     authors = listOf("TheMeinerLP", "OneLiteFeatherNET")
+    generateLibrariesJson = true
 
     serverDependencies {
         // During server run time, require LuckPerms, add it to the classpath, and load it before us
