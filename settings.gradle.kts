@@ -31,7 +31,7 @@ dependencyResolutionManagement {
             library("ktor.logging", "io.ktor", "ktor-client-logging").versionRef("ktor")
             library("ktor.auth", "io.ktor", "ktor-client-auth").versionRef("ktor")
 
-            library("redis", "org.redisson","redisson").version("3.23.4")
+            library("redis", "org.redisson","redisson").version("3.25.0")
 
             library("kotlin.test", "org.jetbrains.kotlin", "kotlin-test").withoutVersion()
             library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.16.+")
