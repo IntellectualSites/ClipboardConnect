@@ -35,11 +35,15 @@ dependencyResolutionManagement {
             library("redis", "org.redisson","redisson").version("3.23.4")
 
             library("kotlin.test", "org.jetbrains.kotlin", "kotlin-test").withoutVersion()
+            library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.16.+")
             library("aerogel", "dev.derklaro.aerogel", "aerogel").version("2.1.0")
             library("paper", "io.papermc.paper", "paper-api").version("1.20.2-R0.1-SNAPSHOT")
+            library("zstd", "com.github.luben", "zstd-jni").version("1.5.5-11")
+
             plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
             plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
             plugin("shadow", "com.github.johnrengelman.shadow").version("8.1.1")
+            plugin("run.server","xyz.jpenilla.run-paper").version("2.2.0")
         }
     }
 }
