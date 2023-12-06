@@ -6,6 +6,7 @@ Clipboard Connect is a dynamic plugin for Minecraft, enabling the synchronizatio
 ## Requirements
 - Paper server version 1.20 or higher.
 - WorldEdit plugin installed on the server.
+- Docker and Docker Compose installation
 
 ## Motivation
 The development of Clipboard Connect was sparked by two key challenges: the need within our network to efficiently transfer builds from one server to another, and a collaboration with TheBakery, who were seeking a similar solution. Clipboard Connect was created to meet these requirements, offering a streamlined and effective method for cross-server build transfers.
