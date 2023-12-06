@@ -1,0 +1,8 @@
+version: '3'
+services:
+  keydb:
+    image: eqalpha/keydb
+    container_name: clipboard-connect-keydb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"

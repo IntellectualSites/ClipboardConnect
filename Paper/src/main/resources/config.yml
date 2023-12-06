@@ -1,5 +1,2 @@
-server:
-  identity: 'Server-A'
-  url: 'http://localhost:9797'
-  username: ''
-  password: '''
+servername: 'Server-A'
+duration: '6h'
