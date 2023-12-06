@@ -16,6 +16,7 @@ class PlayerQuitListener
     @EventHandler
     fun playerQuit(event: PlayerQuitEvent) {
         val player = event.player
+        if (!player.hasPermission("clipboardconnect.service.save")) return
         val worldEditPlayer = BukkitAdapter.adapt(player)
         if (syncService.syncPush(worldEditPlayer)) {
             plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", worldEditPlayer.name)))

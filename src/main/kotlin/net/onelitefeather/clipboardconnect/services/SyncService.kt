@@ -48,6 +48,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         val message = messageRQueue.peek()
         if (message != null) {
             val player = Bukkit.getPlayer(message.userId) ?: return
+            if (!player.hasPermission("clipboardconnect.service.load")) return
             if (syncPull(BukkitAdapter.adapt(player))) {
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successful transfer to this server", Placeholder.unparsed("server", message.fromServer), Placeholder.component("prefix",prefix)))
             }
