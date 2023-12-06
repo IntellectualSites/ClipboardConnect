@@ -1,5 +1,7 @@
 package net.onelitefeather.clipboardconnect.services
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extension.platform.Actor
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
@@ -14,10 +16,9 @@ import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.model.ClipboardMessage
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
-import org.bukkit.plugin.java.JavaPlugin
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
-import org.redisson.api.listener.MessageListener
+import org.redisson.codec.JsonJacksonCodec
 import org.redisson.config.Config
 import java.io.IOException
 import java.nio.file.Files
@@ -32,17 +33,24 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     private val redisson: RedissonClient = buildRedis()
     private val topicName = "ClipboardConnect"
     private val serverName = config.getString("servername") ?: "Unknown"
-    private val sharedTopic = redisson.getShardedTopic(topicName)
+    private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName, JsonJacksonCodec(jacksonObjectMapper()))
     private val duration: Duration = loadDuration()
 
 
     init {
-        sharedTopic.addListener(ClipboardMessage::class.java, MessageListener { channel, msg ->
-           val player = Bukkit.getPlayer(msg.userId) ?: return@MessageListener
+        plugin.server.scheduler.runTaskTimerAsynchronously(plugin, this::pollUpdates, 0, 20)
+        messageRQueue.expire(Duration.parse("5m").toJavaDuration())
+    }
+
+    private fun pollUpdates() {
+        val message = messageRQueue.peek()
+        if (message != null) {
+            val player = Bukkit.getPlayer(message.userId) ?: return
             if (syncPull(BukkitAdapter.adapt(player))) {
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <server> was successful transfer to this server", Placeholder.unparsed("server", msg.fromServer), Placeholder.component("prefix",prefix)))
+                player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successful transfer to this server", Placeholder.unparsed("server", message.fromServer), Placeholder.component("prefix",prefix)))
             }
-        })
+            messageRQueue.remove(message)
+        }
     }
 
     private fun buildRedis(): RedissonClient {
@@ -59,22 +67,23 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         throw NullPointerException()
     }
 
-    fun syncPush(actor: Actor): Boolean {
+    fun syncPush(actor: Actor, automatic: Boolean = false): Boolean {
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
             stream.delete()
         }
-        val session = actor.session
-        val clipboardHolder = session.existingClipboard ?: return false
+        val session = WorldEdit.getInstance().sessionManager.get(actor)
+        val clipboardHolder = session.clipboard ?: return false
         val clipboard = clipboardHolder.clipboard
         BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(stream.outputStream).use {
             it.write(clipboard)
             plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
-            stream.expire(duration.toJavaDuration())
-            sharedTopic.publish(ClipboardMessage(actor.uniqueId, serverName))
-            return true
         }
-
+        stream.expire(duration.toJavaDuration())
+        if (automatic) {
+            messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
+        }
+        return true
     }
 
 
@@ -87,7 +96,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                     Placeholder.unparsed("actor", actor.name)
                 )
             )
-            val session = actor.session
+            val session = WorldEdit.getInstance().sessionManager.get(actor)
             BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(stream.inputStream).use {
                 plugin.componentLogger.debug(
                     MiniMessage.miniMessage().deserialize(
