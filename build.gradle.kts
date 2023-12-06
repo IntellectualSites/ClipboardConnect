@@ -142,8 +142,7 @@ hangarPublish {
             )
         )
         apiKey.set(System.getenv("HANGAR_SECRET"))
-        owner.set("OneLiteFeather")
-        slug.set("ClipboardConnect")
+        id.set("ClipboardConnect")
 
         platforms {
             register(Platforms.PAPER) {
