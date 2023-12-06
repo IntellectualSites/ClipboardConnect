@@ -17,12 +17,28 @@ import org.bukkit.entity.Player
 import java.nio.file.Files
 import kotlin.time.Duration
 
+/**
+ * This class represents a SetupService, which is responsible for managing the setup process
+ * for ClipboardConnect. It provides methods to start and manage the setup conversation,
+ * find a ClipboardPlayer, remove setup players, and generate the configuration.
+ *
+ * @property javaPlugin The instance of the ClipboardConnect plugin
+ * @property prefix The prefix component for messages
+ * @constructor Creates a SetupService with the given ClipboardConnect instance and prefix component
+ */
 @Singleton
 class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect, @Named("prefix") private val prefix: Component) {
 
     private val clipboardPlayers: MutableList<ClipboardPlayer> = mutableListOf()
     private val redisFileName = "redis.yml"
 
+    /**
+     * Starts the setup procedure for the given `ClipboardPlayer` using the specified `Prompt`.
+     *
+     * @param player The `ClipboardPlayer` initiating the setup.
+     * @param prompt The `Prompt` to use for the setup procedure.
+     * @return void
+     */
     fun startSetup(player: ClipboardPlayer, prompt: Prompt) {
         ConversationFactory(javaPlugin).withFirstPrompt(prompt).withPrefix { prefix }.addConversationAbandonedListener(this::remove).buildConversation(player).begin()
         clipboardPlayers.add(player)
@@ -34,15 +50,32 @@ class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect,
         }
     }
 
+    /**
+     * Finds the `ClipboardPlayer` associated with the specified `Player`.
+     *
+     * @param player The `Player` object for which to find the `ClipboardPlayer`.
+     * @return The `ClipboardPlayer` associated with the specified `Player`, or null if not found.
+     */
     fun findClipboardPlayer(player: Player): ClipboardPlayer? {
         return this.clipboardPlayers.firstOrNull { clipboardPlayer: ClipboardPlayer -> clipboardPlayer.getCommandSender().uniqueId == player.uniqueId }
     }
 
 
+    /**
+     * Removes the setup players from the audience.
+     *
+     * @param audience The audience from which to remove the setup players.
+     * @return True if any setup player was removed from the audience, false otherwise.
+     */
     fun removeSetupPlayers(audience: Audience): Boolean {
         return clipboardPlayers.any { clipboardPlayer: ClipboardPlayer -> clipboardPlayer.getCommandSender() == audience }
     }
 
+    /**
+     * Generates a configuration file based on the provided conversation context.
+     *
+     * @param conversationContext The conversation context containing the necessary data.
+     */
     fun generateConfig(conversationContext: ConversationContext) {
         javaPlugin.saveResource(redisFileName, false)
         if(conversationContext.getSessionData(SetupKey.DOCKER_COMPOSE) != null) {

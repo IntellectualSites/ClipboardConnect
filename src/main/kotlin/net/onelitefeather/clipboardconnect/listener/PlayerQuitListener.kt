@@ -10,9 +10,20 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 
+/**
+ * Listener class that handles the 'PlayerQuitEvent' when a player quits the server.
+ *
+ * @property syncService The SyncService instance used for syncing player data.
+ * @property plugin The ClipboardConnect plugin instance.
+ */
 class PlayerQuitListener
     @Inject constructor(private val syncService: SyncService, private val plugin: ClipboardConnect) : Listener {
 
+    /**
+     * Handles the 'PlayerQuitEvent' when a player quits the server.
+     *
+     * @param event The PlayerQuitEvent object.
+     */
     @EventHandler
     fun playerQuit(event: PlayerQuitEvent) {
         val player = event.player

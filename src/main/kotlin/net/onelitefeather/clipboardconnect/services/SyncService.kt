@@ -29,6 +29,18 @@ import kotlin.io.path.reader
 import kotlin.time.Duration
 import kotlin.time.toJavaDuration
 
+/**
+ * This class is responsible for synchronizing clipboards between servers using Redisson as the message queue.
+ *
+ * @property config The configuration file of the plugin.
+ * @property plugin The main plugin instance.
+ * @property prefix The prefix component used in the plugin's messages.
+ * @property redisson The Redisson client instance used to connect to Redis.
+ * @property topicName The name of the Redis topic used for message communication.
+ * @property serverName The name of the server.
+ * @property messageRQueue The Redisson queue used for message communication.
+ * @property duration The duration for which clipboards are stored in Redis.
+ */
 @Singleton
 class SyncService @Inject constructor(private val config: FileConfiguration, private val plugin: ClipboardConnect, @Named("prefix") private val prefix: Component) {
 
@@ -70,6 +82,13 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         throw NullPointerException()
     }
 
+    /**
+     * Synchronizes and saves the clipboard for a given actor.
+     *
+     * @param actor The actor whose clipboard needs to be synchronized and saved.
+     * @param automatic Flag indicating if the synchronization is automatic or manual. Defaults to false.
+     * @return True if the synchronization and save were successful, false otherwise.
+     */
     fun syncPush(actor: Actor, automatic: Boolean = false): Boolean {
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
@@ -91,6 +110,12 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     }
 
 
+    /**
+     * Synchronizes and pulls the clipboard for a given actor.
+     *
+     * @param actor The actor whose clipboard needs to be synchronized and pulled.
+     * @return True if the synchronization and pull were successful, false otherwise.
+     */
     fun syncPull(actor: Actor): Boolean {
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {

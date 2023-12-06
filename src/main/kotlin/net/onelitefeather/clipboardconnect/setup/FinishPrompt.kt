@@ -7,6 +7,10 @@ import net.onelitefeather.clipboardconnect.conversation.ConversationContext
 import net.onelitefeather.clipboardconnect.conversation.MessagePrompt
 import net.onelitefeather.clipboardconnect.conversation.Prompt
 
+/**
+ * This class represents a prompt that displays a message to the user and requires
+ * no input. It is a subclass of MessagePrompt.
+ */
 class FinishPrompt : MessagePrompt() {
     override fun getPromptText(context: ConversationContext): Component {
 

@@ -34,6 +34,12 @@ import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
 import kotlin.io.path.Path
 
+/**
+ * This class represents a ClipboardConnect plugin that provides functionality
+ * for managing the clipboard and setup process. It extends the JavaPlugin class
+ * and implements various methods for plugin initialization and configuration.
+ *
+ */
 @Singleton
 class ClipboardConnect : JavaPlugin() {
 
@@ -44,8 +50,6 @@ class ClipboardConnect : JavaPlugin() {
     override fun onLoad() {
         saveDefaultConfig()
     }
-
-
 
     override fun onEnable() {
         val injector = Injector.newInjector()
@@ -73,6 +77,11 @@ class ClipboardConnect : JavaPlugin() {
         ))
     }
 
+    /**
+     * Initializes the command manager for the ClipboardConnect plugin.
+     *
+     * @param injector The Injector instance used for dependency injection.
+     */
     @Inject
     @Order(10)
     private fun commandManager(injector: Injector) {
@@ -87,6 +96,12 @@ class ClipboardConnect : JavaPlugin() {
         injector.install(BindingBuilder.create().bind(Element.forType(commandManager.javaClass)).bindMatching(RawTypeMatcher.create(commandManager.javaClass)).toInstance(commandManager))
     }
 
+    /**
+     * Parses the given command annotations and creates an instance of AnnotationParser.
+     *
+     * @param commandManager The PaperCommandManager instance used for command registration.
+     * @param injector The Injector instance used for dependency injection.
+     */
     @Inject
     @Order(100)
     private fun annotationParser(commandManager: PaperCommandManager<ClipboardSender>, injector: Injector) {
@@ -100,6 +115,11 @@ class ClipboardConnect : JavaPlugin() {
         injector.install(BindingBuilder.create().bind(Element.forType(annotationParser.javaClass)).bindMatching(RawTypeMatcher.create(annotationParser.javaClass)).toInstance(annotationParser))
     }
 
+    /**
+     * Registers event listeners and parses command annotations.
+     *
+     * @param injector The Injector instance used for dependency injection.
+     */
     @Inject
     @Order(150)
     private fun register(injector: Injector) {
@@ -124,6 +144,11 @@ class ClipboardConnect : JavaPlugin() {
         }
     }
 
+    /**
+     * Generates a configuration file based on the provided conversation context.
+     *
+     * @param conversationContext The conversation context containing the necessary data.
+     */
     fun generateConfig(conversationContext: ConversationContext) {
         setupService.generateConfig(conversationContext)
     }

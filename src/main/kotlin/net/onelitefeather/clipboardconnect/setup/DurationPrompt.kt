@@ -7,6 +7,9 @@ import net.onelitefeather.clipboardconnect.conversation.Prompt
 import net.onelitefeather.clipboardconnect.conversation.StringPrompt
 import kotlin.time.Duration
 
+/**
+ * A prompt for getting the duration to keep the clipboards in the Redis memory.
+ */
 class DurationPrompt : StringPrompt() {
     override fun getPromptText(context: ConversationContext): Component {
         return MiniMessage.miniMessage().deserialize("<green>How long do you want to keep the clipboards in the Redis memory? <gray>(example: <gold>6h = 6 hours<gray>)")
