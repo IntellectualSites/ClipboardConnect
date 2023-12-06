@@ -27,7 +27,6 @@ dependencies {
     compileOnly(libs.worldedit)
 
     implementation(platform(libs.cloud.bom))
-    implementation(libs.cloud.kotlin)
     implementation(libs.cloud.paper)
     implementation(libs.cloud.annotations)
     implementation(libs.cloud.minecraft.extras)
