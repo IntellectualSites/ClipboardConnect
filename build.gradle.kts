@@ -113,7 +113,7 @@ paper {
             )
         }
 
-        register("clipboardconnect.pack.basic") {
+        register("clipboardconnect.pack.admin") {
             children = listOf(
                 "clipboardconnect.pack.basic",
                 "clipboardconnect.command.setup",
