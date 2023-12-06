@@ -9,13 +9,13 @@ import net.onelitefeather.clipboardconnect.services.SetupService
 import net.onelitefeather.clipboardconnect.setup.ServerNamePrompt
 
 
-@CommandMethod("clipboardconnect setup")
-@CommandDescription("Starts the beginning of setup procedure")
-@CommandPermission("clipboardconnect.command.setup")
+@CommandMethod("clipboardconnect|clipcon")
 class SetupCommand
 @Inject constructor(private val setupService: SetupService) {
 
-    @CommandMethod("")
+    @CommandMethod("setup")
+    @CommandPermission("clipboardconnect.command.setup")
+    @CommandDescription("Starts the beginning of setup procedure")
     fun execute(clipboardPlayer: ClipboardPlayer) {
         setupService.startSetup(clipboardPlayer, ServerNamePrompt())
     }
