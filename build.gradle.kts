@@ -134,7 +134,7 @@ changelog {
 
 hangarPublish {
     publications.register("ClipboardConnect") {
-        version.set(project.version.toString())
+        version.set(publishData.getVersion(true))
         channel.set(System.getenv("HANGAR_CHANNEL"))
         changelog.set(
             project.changelog.renderItem(
@@ -155,7 +155,7 @@ hangarPublish {
 modrinth {
     token.set(System.getenv("MODRINTH_TOKEN"))
     projectId.set("i8DhJQqP")
-    versionNumber.set(version.toString())
+    versionNumber.set(publishData.getVersion(true))
     versionType.set(System.getenv("MODRINTH_CHANNEL"))
     uploadFile.set(tasks.shadowJar as Any)
     gameVersions.addAll(supportedMinecraftVersions)
