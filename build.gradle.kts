@@ -1,4 +1,6 @@
 import de.chojo.Repo
+import io.papermc.hangarpublishplugin.model.Platforms
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
@@ -7,6 +9,9 @@ plugins {
     alias(libs.plugins.publishdata)
     alias(libs.plugins.shadow)
     alias(libs.plugins.run.server)
+    alias(libs.plugins.publish.hangar)
+    alias(libs.plugins.publish.modrinth)
+    alias(libs.plugins.changelog)
 }
 
 group = "net.onelitefeather"
@@ -47,6 +52,18 @@ kotlin {
     jvmToolchain(17)
 }
 
+val supportedMinecraftVersions = listOf(
+    "1.19",
+    "1.19.1",
+    "1.19.2",
+    "1.19.3",
+    "1.19.4",
+    "1.20",
+    "1.20.1",
+    "1.20.2",
+    "1.20.3",
+)
+
 publishData {
     addBuildData()
     addRepo(Repo.main("","",true))
@@ -66,6 +83,88 @@ paper {
             load = PaperPluginDescription.RelativeLoadOrder.BEFORE
         }
     }
+
+    permissions {
+        register("clipboardconnect.service.save") {
+            this.default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+        register("clipboardconnect.service.load") {
+            this.default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+
+        register("clipboardconnect.command.load") {
+            this.default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+
+        register("clipboardconnect.command.save") {
+            this.default = BukkitPluginDescription.Permission.Default.TRUE
+        }
+
+        register("clipboardconnect.command.setup") {
+            this.default = BukkitPluginDescription.Permission.Default.OP
+        }
+
+        register("clipboardconnect.pack.basic") {
+            children = listOf(
+                "clipboardconnect.service.save",
+                "clipboardconnect.service.load",
+                "clipboardconnect.command.load",
+                "clipboardconnect.command.save",
+            )
+        }
+
+        register("clipboardconnect.pack.basic") {
+            children = listOf(
+                "clipboardconnect.pack.basic",
+                "clipboardconnect.command.setup",
+            )
+        }
+    }
+}
+
+changelog {
+    version.set(publishData.getVersion(false))
+    path.set("${project.projectDir}/CHANGELOG.md")
+    itemPrefix.set("-")
+    keepUnreleasedSection.set(true)
+    unreleasedTerm.set("[Unreleased]")
+    groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
 }
 
 
+hangarPublish {
+    publications.register("ClipboardConnect") {
+        version.set(project.version.toString())
+        channel.set(System.getenv("HANGAR_CHANNEL"))
+        changelog.set(
+            project.changelog.renderItem(
+                project.changelog.getOrNull(publishData.getVersion(false)) ?: project.changelog.getUnreleased()
+            )
+        )
+        apiKey.set(System.getenv("HANGAR_SECRET"))
+        owner.set("OneLiteFeather")
+        slug.set("ClipboardConnect")
+
+        platforms {
+            register(Platforms.PAPER) {
+                jar.set(tasks.shadowJar.flatMap { it.archiveFile })
+                platformVersions.set(supportedMinecraftVersions)
+            }
+        }
+    }
+}
+modrinth {
+    token.set(System.getenv("MODRINTH_TOKEN"))
+    projectId.set("i8DhJQqP")
+    versionNumber.set(version.toString())
+    versionType.set(System.getenv("MODRINTH_CHANNEL"))
+    uploadFile.set(tasks.shadowJar as Any)
+    gameVersions.addAll(supportedMinecraftVersions)
+    loaders.add("paper")
+    loaders.add("bukkit")
+    changelog.set(
+        project.changelog.renderItem(
+            project.changelog.getOrNull(publishData.getVersion(false)) ?: project.changelog.getUnreleased()
+        )
+    )
+}
