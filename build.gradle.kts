@@ -26,15 +26,14 @@ repositories {
 dependencies {
     compileOnly(libs.worldedit)
 
-    paperLibrary(platform(libs.cloud.bom))
     paperLibrary(libs.cloud.paper)
     paperLibrary(libs.cloud.annotations)
     paperLibrary(libs.cloud.minecraft.extras)
-
     paperLibrary(libs.aerogel)
-    paperLibrary(libs.kotlin.jackson)
     paperLibrary(libs.redis)
     paperLibrary(libs.zstd)
+    paperLibrary(libs.kotlin.jackson)
+
     compileOnly(libs.paper)
     testImplementation(libs.kotlin.test)
 }

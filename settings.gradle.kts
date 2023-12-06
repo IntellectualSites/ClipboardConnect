@@ -19,17 +19,10 @@ dependencyResolutionManagement {
             library("fawe.core", "com.fastasyncworldedit", "FastAsyncWorldEdit-Core").withoutVersion()
             library("fawe.bukkit", "com.fastasyncworldedit", "FastAsyncWorldEdit-Bukkit").withoutVersion()
 
-            library("cloud.bom", "cloud.commandframework", "cloud-bom").version("1.8.4")
-            library("cloud.kotlin", "cloud.commandframework", "cloud-kotlin-extensions").withoutVersion()
-            library("cloud.paper", "cloud.commandframework", "cloud-paper").withoutVersion()
-            library("cloud.annotations", "cloud.commandframework", "cloud-annotations").withoutVersion()
-            library("cloud.minecraft.extras", "cloud.commandframework", "cloud-minecraft-extras").withoutVersion()
-
-            version("ktor", "2.3.6")
-            library("ktor.core", "io.ktor", "ktor-client-core").versionRef("ktor")
-            library("ktor.cio", "io.ktor", "ktor-client-cio").versionRef("ktor")
-            library("ktor.logging", "io.ktor", "ktor-client-logging").versionRef("ktor")
-            library("ktor.auth", "io.ktor", "ktor-client-auth").versionRef("ktor")
+            version("cloud", "1.8.4")
+            library("cloud.paper", "cloud.commandframework", "cloud-paper").versionRef("cloud")
+            library("cloud.annotations", "cloud.commandframework", "cloud-annotations").versionRef("cloud")
+            library("cloud.minecraft.extras", "cloud.commandframework", "cloud-minecraft-extras").versionRef("cloud")
 
             library("redis", "org.redisson","redisson").version("3.25.0")
 
