@@ -19,6 +19,8 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.onelitefeather.clipboardconnect.command.ClipboardPlayer
 import net.onelitefeather.clipboardconnect.command.ClipboardSender
+import net.onelitefeather.clipboardconnect.commands.LoadCommand
+import net.onelitefeather.clipboardconnect.commands.SaveCommand
 import net.onelitefeather.clipboardconnect.commands.SetupCommand
 import net.onelitefeather.clipboardconnect.conversation.ConversationContext
 import net.onelitefeather.clipboardconnect.listener.PlayerQuitListener
@@ -26,6 +28,7 @@ import net.onelitefeather.clipboardconnect.listener.SetupListener
 import net.onelitefeather.clipboardconnect.services.SetupService
 import net.onelitefeather.clipboardconnect.utils.RawTypeMatcher
 import org.bukkit.command.CommandSender
+import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import java.nio.file.Files
@@ -47,13 +50,17 @@ class ClipboardConnect : JavaPlugin() {
     override fun onEnable() {
         val injector = Injector.newInjector()
         injector.install(BindingBuilder.create()
+            .bind(FileConfiguration::class.java)
             .toInstance(config))
             .install(BindingBuilder.create()
             .bind(Element
                 .forType(Component::class.java)
                 .requireAnnotation(Qualifiers.named("prefix"))
             ).toInstance(prefixComponent))
-            .install(BindingBuilder.create().bindAll(ClipboardConnect::class.java).scoped(Scopes.SINGLETON).toInstance(this))
+            .install(BindingBuilder.create()
+                .bindAll(ClipboardConnect::class.java)
+                .scoped(Scopes.SINGLETON)
+                .toInstance(this))
         injector.memberInjector(ClipboardConnect::class.java).inject(injector.instance(ClipboardConnect::class.java), InjectionSetting.toFlag(
             InjectionSetting.PRIVATE_METHODS,
             InjectionSetting.STATIC_METHODS,
@@ -64,14 +71,6 @@ class ClipboardConnect : JavaPlugin() {
             InjectionSetting.INHERITED_FIELDS,
             InjectionSetting.RUN_POST_CONSTRUCT_LISTENERS
         ))
-        val redisFile = Path(dataFolder.toString(), "redis.yml")
-        if (Files.exists(redisFile)) {
-            server.pluginManager.registerEvents(injector.instance(PlayerQuitListener::class.java), this)
-        } else {
-            componentLogger.info(MiniMessage.miniMessage().deserialize("<green>Please run \"/clipboardconnect setup\" ingame"))
-        }
-
-
     }
 
     @Inject
@@ -106,6 +105,14 @@ class ClipboardConnect : JavaPlugin() {
     private fun register(injector: Injector) {
         server.pluginManager.registerEvents(injector.instance(SetupListener::class.java), this)
         injector.instance(AnnotationParser::class.java).parse(injector.instance(SetupCommand::class.java))
+        val redisFile = Path(dataFolder.toString(), "redis.yml")
+        if (Files.exists(redisFile)) {
+            server.pluginManager.registerEvents(injector.instance(PlayerQuitListener::class.java), this)
+            injector.instance(AnnotationParser::class.java).parse(injector.instance(SaveCommand::class.java))
+            injector.instance(AnnotationParser::class.java).parse(injector.instance(LoadCommand::class.java))
+        } else {
+            componentLogger.info(MiniMessage.miniMessage().deserialize("<green>Please run \"/clipboardconnect setup\" ingame"))
+        }
     }
 
 
