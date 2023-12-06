@@ -21,14 +21,14 @@ The primary focus of Clipboard Connect is the synchronization of WorldEdit clipb
 
 ## Permissions
 
-| Permission Pack            | Permission | Description |
-|----------------------------|------------|-------------|
-| `clipboardconnect.pack.basic` | `clipboardconnect.command.save` | Save clipboard to Redis |
-| `clipboardconnect.pack.basic` | `clipboardconnect.command.load` | Load clipboard from Redis |
-| `clipboardconnect.pack.basic` | `clipboardconnect.service.save` | Automatic saving of clipboard when leaving the server |
-| `clipboardconnect.pack.basic` | `clipboardconnect.service.load` | Automatic loading of clipboard when joining the server |
+| Permission Pack            | Permission                       | Description |
+|----------------------------|----------------------------------|-------------|
+| `clipboardconnect.pack.basic` | `clipboardconnect.command.save`  | Save clipboard to Redis |
+| `clipboardconnect.pack.basic` | `clipboardconnect.command.load`  | Load clipboard from Redis |
+| `clipboardconnect.pack.basic` | `clipboardconnect.service.save`  | Automatic saving of clipboard when leaving the server |
+| `clipboardconnect.pack.basic` | `clipboardconnect.service.load`  | Automatic loading of clipboard when joining the server |
 | `clipboardconnect.pack.admin` | `clipboardconnect.command.setup` | Access to the setup command for configuring the plugin |
-| `clipboardconnect.pack.admin` | Includes all `clipboardconnect.pack.basic` permissions | - |
+| `clipboardconnect.pack.admin` | -                                | Includes all `clipboardconnect.pack.basic` permissions |
 
 ## Commands
 - `/clipboardconnect setup` - Starts an interactive setup process that guides the user through configuring the plugin.
