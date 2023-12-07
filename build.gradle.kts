@@ -30,8 +30,9 @@ dependencies {
     paperLibrary(libs.cloud.annotations)
     paperLibrary(libs.cloud.minecraft.extras)
     paperLibrary(libs.aerogel)
-    implementation(libs.redis)
     paperLibrary(libs.zstd)
+    implementation(libs.redis)
+    implementation(libs.bstats)
     implementation(libs.kotlin.jackson)
 
     compileOnly(libs.paper)
@@ -44,6 +45,9 @@ tasks {
     }
     runServer {
         minecraftVersion("1.20.2")
+    }
+    shadowJar {
+        relocate("org.bstats", "net.onelitefeather.clipboardconnect.org.bstats")
     }
 }
 kotlin {

@@ -27,6 +27,7 @@ import net.onelitefeather.clipboardconnect.listener.PlayerQuitListener
 import net.onelitefeather.clipboardconnect.listener.SetupListener
 import net.onelitefeather.clipboardconnect.services.SetupService
 import net.onelitefeather.clipboardconnect.utils.RawTypeMatcher
+import org.bstats.bukkit.Metrics
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
@@ -47,6 +48,7 @@ class ClipboardConnect : JavaPlugin() {
 
     @Inject
     private lateinit var setupService: SetupService
+
     override fun onLoad() {
         saveDefaultConfig()
     }
@@ -75,6 +77,11 @@ class ClipboardConnect : JavaPlugin() {
             InjectionSetting.INHERITED_FIELDS,
             InjectionSetting.RUN_POST_CONSTRUCT_LISTENERS
         ))
+    }
+
+    @Inject
+    private fun bsStats() {
+        Metrics(this, 20460)
     }
 
     /**
