@@ -9,6 +9,7 @@ import net.onelitefeather.clipboardconnect.services.SyncService
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
+import org.slf4j.Marker
 
 /**
  * Listener class that handles the 'PlayerQuitEvent' when a player quits the server.
@@ -27,8 +28,11 @@ class PlayerQuitListener
     @EventHandler
     fun playerQuit(event: PlayerQuitEvent) {
         val player = event.player
+        plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<player> is logging out", Placeholder.component("player", player.name())))
         if (!player.hasPermission("clipboardconnect.service.save")) return
+        plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<player> permission check was successful", Placeholder.component("player", player.name())))
         val worldEditPlayer = BukkitAdapter.adapt(player)
+        plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("Try to push clipboard for <player>", Placeholder.component("player", player.name())))
         if (syncService.syncPush(worldEditPlayer)) {
             plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", worldEditPlayer.name)))
         }

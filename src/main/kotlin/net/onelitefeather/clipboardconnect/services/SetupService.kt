@@ -5,6 +5,8 @@ import jakarta.inject.Named
 import jakarta.inject.Singleton
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.command.ClipboardPlayer
 import net.onelitefeather.clipboardconnect.conversation.ConversationAbandonedEvent
@@ -40,6 +42,7 @@ class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect,
      * @return void
      */
     fun startSetup(player: ClipboardPlayer, prompt: Prompt) {
+        javaPlugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<player> is starting a setup", Placeholder.component("player", player.getCommandSender().name())))
         ConversationFactory(javaPlugin).withFirstPrompt(prompt).withPrefix { prefix }.addConversationAbandonedListener(this::remove).buildConversation(player).begin()
         clipboardPlayers.add(player)
     }
@@ -77,6 +80,7 @@ class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect,
      * @param conversationContext The conversation context containing the necessary data.
      */
     fun generateConfig(conversationContext: ConversationContext) {
+        javaPlugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("Generate config"))
         javaPlugin.saveResource(redisFileName, false)
         if(conversationContext.getSessionData(SetupKey.DOCKER_COMPOSE) != null) {
             javaPlugin.saveResource(SetupKey.DOCKER_COMPOSE.value, false)

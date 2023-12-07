@@ -12,6 +12,7 @@ import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
@@ -22,6 +23,7 @@ import org.redisson.Redisson
 import org.redisson.api.RedissonClient
 import org.redisson.codec.JsonJacksonCodec
 import org.redisson.config.Config
+import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.nio.file.Files
 import kotlin.io.path.Path
@@ -44,11 +46,14 @@ import kotlin.time.toJavaDuration
 @Singleton
 class SyncService @Inject constructor(private val config: FileConfiguration, private val plugin: ClipboardConnect, @Named("prefix") private val prefix: Component) {
 
+    private val logger = ComponentLogger.logger(javaClass)
     private val redisson: RedissonClient = buildRedis()
     private val topicName = "ClipboardConnect"
     private val serverName = config.getString("servername") ?: "Unknown"
     private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName, JsonJacksonCodec(jacksonObjectMapper()))
     private val duration: Duration = loadDuration()
+    private val pushMarker = MarkerFactory.getMarker("Sync Push")
+    private val pullMarker = MarkerFactory.getMarker("Sync Pull")
 
 
     init {
@@ -69,13 +74,15 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     }
 
     private fun buildRedis(): RedissonClient {
+        logger.debug(MiniMessage.miniMessage().deserialize("Build redis config"))
         val redisFile = Path(plugin.dataFolder.toString(), "redis.yml")
         if (Files.exists(redisFile)) {
             try {
+                logger.debug(MiniMessage.miniMessage().deserialize("Read redis config"))
                 val config = Config.fromYAML(redisFile.reader())
                 return Redisson.create(config)
             } catch (e: IOException) {
-                plugin.componentLogger.error(MiniMessage.miniMessage().deserialize("<red>Failed to load redis.yml"), e)
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to load redis.yml"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
         }
@@ -90,20 +97,27 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @return True if the synchronization and save were successful, false otherwise.
      */
     fun syncPush(actor: Actor, automatic: Boolean = false): Boolean {
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
+            plugin.componentLogger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
             stream.delete()
         }
         val session = WorldEdit.getInstance().sessionManager.get(actor)
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
         val clipboardHolder = session.clipboard ?: return false
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Found actor<player> clipboard holder", Placeholder.unparsed("player", actor.name)))
         val clipboard = clipboardHolder.clipboard
-
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> writer", Placeholder.unparsed("player", actor.name)))
         BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(ZstdOutputStream(stream.outputStream)).use {
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard into stream", Placeholder.unparsed("player", actor.name)))
             it.write(clipboard)
-            plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
         }
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Set actor<player> clipboard expire to <duration>", Placeholder.unparsed("player", actor.name), Placeholder.unparsed("duration", duration.toString())))
         stream.expire(duration.toJavaDuration())
         if (automatic) {
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard info into queue", Placeholder.unparsed("player", actor.name)))
             messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
         }
         return true
@@ -117,22 +131,26 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @return True if the synchronization and pull were successful, false otherwise.
      */
     fun syncPull(actor: Actor): Boolean {
+        logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
-            plugin.componentLogger.debug(
+            logger.debug(pullMarker,
                 MiniMessage.miniMessage().deserialize(
                     "<green>Clipboard from <actor> was successful downloaded",
                     Placeholder.unparsed("actor", actor.name)
                 )
             )
+            logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
             val session = WorldEdit.getInstance().sessionManager.get(actor)
+            logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> reader", Placeholder.unparsed("player", actor.name)))
             BuiltInClipboardFormat.SPONGE_SCHEMATIC.getReader(ZstdInputStream(stream.inputStream)).use {
-                plugin.componentLogger.debug(
+                logger.debug(pullMarker,
                     MiniMessage.miniMessage().deserialize(
                         "<green>Clipboard from <actor> was successful written into a clipboard holder",
                         Placeholder.unparsed("actor", actor.name)
                     )
                 )
+                logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Create clipboard holder for actor<player>", Placeholder.unparsed("player", actor.name)))
                 session.clipboard = ClipboardHolder(it.read())
                 return true
             }
