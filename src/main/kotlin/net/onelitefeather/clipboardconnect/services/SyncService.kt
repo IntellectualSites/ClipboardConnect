@@ -17,12 +17,15 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.model.ClipboardMessage
+import org.apache.logging.log4j.simple.SimpleLogger
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
 import org.redisson.codec.JsonJacksonCodec
 import org.redisson.config.Config
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.nio.file.Files
@@ -63,12 +66,18 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
 
     private fun pollUpdates() {
         val message = messageRQueue.peek()
+        logger.debug(MiniMessage.miniMessage().deserialize("Pull message queue"))
         if (message != null) {
+            logger.debug(MiniMessage.miniMessage().deserialize("Found message"))
             val player = Bukkit.getPlayer(message.userId) ?: return
+            logger.debug(MiniMessage.miniMessage().deserialize("Found player"))
             if (!player.hasPermission("clipboardconnect.service.load")) return
+            logger.debug(MiniMessage.miniMessage().deserialize("Player permission check ok"))
             if (syncPull(BukkitAdapter.adapt(player))) {
+                logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successful transfer to this server", Placeholder.unparsed("server", message.fromServer), Placeholder.component("prefix",prefix)))
             }
+            logger.debug(MiniMessage.miniMessage().deserialize("Remove message from queue"))
             messageRQueue.remove(message)
         }
     }
@@ -96,7 +105,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @param automatic Flag indicating if the synchronization is automatic or manual. Defaults to false.
      * @return True if the synchronization and save were successful, false otherwise.
      */
-    fun syncPush(actor: Actor, automatic: Boolean = false): Boolean {
+    fun syncPush(actor: Actor, automatic: Boolean = true): Boolean {
         logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
