@@ -31,9 +31,9 @@ dependencies {
     paperLibrary(libs.cloud.minecraft.extras)
     paperLibrary(libs.aerogel)
     paperLibrary(libs.zstd)
-    implementation(libs.redis)
+    paperLibrary(libs.redis)
     implementation(libs.bstats)
-    implementation(libs.kotlin.jackson)
+    paperLibrary(libs.kotlin.jackson)
 
     compileOnly(libs.paper)
     testImplementation(libs.kotlin.test)
