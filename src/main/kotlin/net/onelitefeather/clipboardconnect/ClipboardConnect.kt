@@ -173,10 +173,7 @@ class ClipboardConnect : JavaPlugin() {
         val annotationParser = AnnotationParser(
             commandManager,
             ClipboardSender::class.java
-        ) { t ->
-            CommandMeta.simple().with(CommandMeta.DESCRIPTION, t.get(StandardParameters.DESCRIPTION, "No description"))
-                .build()
-        }
+        )
         injector.install(BindingBuilder.create().bind(Element.forType(annotationParser.javaClass)).bindMatching(RawTypeMatcher.create(annotationParser.javaClass)).toInstance(annotationParser))
     }
 
