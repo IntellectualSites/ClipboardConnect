@@ -27,9 +27,9 @@ repositories {
 dependencies {
     compileOnly(libs.worldedit)
 
-    paperLibrary(libs.cloud.paper)
-    paperLibrary(libs.cloud.annotations)
-    paperLibrary(libs.cloud.minecraft.extras)
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.annotations)
+    implementation(libs.cloud.minecraft.extras)
     paperLibrary(libs.aerogel)
     paperLibrary(libs.zstd)
     implementation(libs.redis)
