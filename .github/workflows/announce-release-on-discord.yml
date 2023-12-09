@@ -14,9 +14,8 @@ jobs:
         uses: Ilshidur/action-discord@0.3.2
         with:
           args: |
-            "<@&673137848211472384>"
             ""
-            "<:favs:673138127434416139> **ClipboardConnect ${{ github.event.release.tag_name }} has been released!**"
+            "<:clipboardconnect:1183132080738160694> **ClipboardConnect ${{ github.event.release.tag_name }} has been released!**"
             ""
             "Click here to view changelog: https://github.com/IntellectualSites/ClipboardConnect/releases/tag/${{ github.event.release.tag_name }}"
             ""
