@@ -5,7 +5,7 @@ Clipboard Connect is a dynamic plugin for Minecraft, enabling the synchronizatio
 
 ## Requirements
 - Paper server version 1.20 or higher.
-- WorldEdit plugin installed on the server.
+- WorldEdit / FAWE plugin installed on the server.
 - Docker and Docker Compose installation
 
 ## Motivation
@@ -17,7 +17,7 @@ The primary focus of Clipboard Connect is the synchronization of WorldEdit clipb
 ## More Information / External Links
 - Hangar: [https://hangar.papermc.io/OneLiteFeather/ClipboardConnect](https://hangar.papermc.io/OneLiteFeather/ClipboardConnect)
 - Modrinth: [https://modrinth.com/plugin/clipboard-connect](https://modrinth.com/plugin/clipboard-connect)
-- Discord: [https://discord.onelitefeather.net](https://discord.onelitefeather.net)
+- Discord: [https://discord.gg/intellectualsites](https://discord.gg/intellectualsites)
 
 ## Permissions
 
