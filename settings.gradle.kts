@@ -19,7 +19,7 @@ dependencyResolutionManagement {
             library("fawe.core", "com.fastasyncworldedit", "FastAsyncWorldEdit-Core").withoutVersion()
             library("fawe.bukkit", "com.fastasyncworldedit", "FastAsyncWorldEdit-Bukkit").withoutVersion()
 
-            version("cloud", "1.8.4")
+            version("cloud", "2.0.0-SNAPSHOT")
             library("cloud.paper", "cloud.commandframework", "cloud-paper").versionRef("cloud")
             library("cloud.annotations", "cloud.commandframework", "cloud-annotations").versionRef("cloud")
             library("cloud.minecraft.extras", "cloud.commandframework", "cloud-minecraft-extras").versionRef("cloud")
