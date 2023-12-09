@@ -18,6 +18,7 @@ group = "net.onelitefeather"
 version = "1.0.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.enginehub.org/repo/")
