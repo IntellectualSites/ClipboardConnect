@@ -1,0 +1,26 @@
+name: Announce release on discord
+on:
+  release:
+    types: [published]
+jobs:
+  send_announcement:
+    runs-on: ubuntu-latest
+    steps:
+      - name: send custom message with args
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: ClipboardConnect Release
+          DISCORD_AVATAR: https://cdn.modrinth.com/data/i8DhJQqP/b454b0bc12cbc88f42b3e51b6f750ca7410a0c0a.png
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: |
+            "<@&673137848211472384>"
+            ""
+            "<:favs:673138127434416139> **ClipboardConnect ${{ github.event.release.tag_name }} has been released!**"
+            ""
+            "Click here to view changelog: https://github.com/IntellectualSites/ClipboardConnect/releases/tag/${{ github.event.release.tag_name }}"
+            ""
+            "The primary download is available at: Modrinth: <https://modrinth.com/plugin/ClipboardConnect/version/${{ github.event.release.tag_name }}>"
+            ""
+            "Alternative downloads are available at:"
+            "- Hangar: <https://hangar.papermc.io/IntellectualSites/ClipboardConnect/versions/${{ github.event.release.tag_name }}>"
