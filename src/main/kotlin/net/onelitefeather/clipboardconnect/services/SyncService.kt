@@ -3,6 +3,7 @@ package net.onelitefeather.clipboardconnect.services
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.luben.zstd.ZstdInputStream
 import com.github.luben.zstd.ZstdOutputStream
+import com.sk89q.worldedit.EmptyClipboardException
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extension.platform.Actor
@@ -114,20 +115,24 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         }
         val session = WorldEdit.getInstance().sessionManager.get(actor)
         logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
-        val clipboardHolder = session.clipboard ?: return false
-        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Found actor<player> clipboard holder", Placeholder.unparsed("player", actor.name)))
-        val clipboard = clipboardHolder.clipboard
-        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> writer", Placeholder.unparsed("player", actor.name)))
-        BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(ZstdOutputStream(stream.outputStream)).use {
-            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard into stream", Placeholder.unparsed("player", actor.name)))
-            it.write(clipboard)
-            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
-        }
-        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Set actor<player> clipboard expire to <duration>", Placeholder.unparsed("player", actor.name), Placeholder.unparsed("duration", duration.toString())))
-        stream.expire(duration.toJavaDuration())
-        if (automatic) {
-            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard info into queue", Placeholder.unparsed("player", actor.name)))
-            messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
+        try {
+            val clipboardHolder = session.clipboard ?: return false
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Found actor<player> clipboard holder", Placeholder.unparsed("player", actor.name)))
+            val clipboard = clipboardHolder.clipboard
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> writer", Placeholder.unparsed("player", actor.name)))
+            BuiltInClipboardFormat.SPONGE_SCHEMATIC.getWriter(ZstdOutputStream(stream.outputStream)).use {
+                logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard into stream", Placeholder.unparsed("player", actor.name)))
+                it.write(clipboard)
+                logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("<green>Clipboard from <actor> was successful written into output stream", Placeholder.unparsed("actor", actor.name)))
+            }
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Set actor<player> clipboard expire to <duration>", Placeholder.unparsed("player", actor.name), Placeholder.unparsed("duration", duration.toString())))
+            stream.expire(duration.toJavaDuration())
+            if (automatic) {
+                logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Write actor<player> clipboard info into queue", Placeholder.unparsed("player", actor.name)))
+                messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
+            }
+        } catch (e: EmptyClipboardException) {
+            return false
         }
         return true
     }
