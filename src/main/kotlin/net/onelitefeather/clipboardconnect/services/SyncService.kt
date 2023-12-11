@@ -1,6 +1,5 @@
 package net.onelitefeather.clipboardconnect.services
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.luben.zstd.ZstdInputStream
 import com.github.luben.zstd.ZstdOutputStream
 import com.sk89q.worldedit.EmptyClipboardException
@@ -18,15 +17,12 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.model.ClipboardMessage
-import org.apache.logging.log4j.simple.SimpleLogger
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
-import org.redisson.codec.JsonJacksonCodec
+import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.config.Config
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.nio.file.Files
@@ -54,7 +50,8 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     private val redisson: RedissonClient = buildRedis()
     private val topicName = "ClipboardConnect"
     private val serverName = config.getString("servername") ?: "Unknown"
-    private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName, JsonJacksonCodec(jacksonObjectMapper()))
+    private val codec = TypedJsonJacksonCodec(ClipboardMessage::class.java)
+    private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName,codec)
     private val duration: Duration = loadDuration()
     private val pushMarker = MarkerFactory.getMarker("Sync Push")
     private val pullMarker = MarkerFactory.getMarker("Sync Pull")
@@ -66,20 +63,25 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     }
 
     private fun pollUpdates() {
-        val message = messageRQueue.peek()
-        logger.debug(MiniMessage.miniMessage().deserialize("Pull message queue"))
-        if (message != null) {
-            logger.debug(MiniMessage.miniMessage().deserialize("Found message"))
-            val player = Bukkit.getPlayer(message.userId) ?: return
-            logger.debug(MiniMessage.miniMessage().deserialize("Found player"))
-            if (!player.hasPermission("clipboardconnect.service.load")) return
-            logger.debug(MiniMessage.miniMessage().deserialize("Player permission check ok"))
-            if (syncPull(BukkitAdapter.adapt(player))) {
-                logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
-                player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successful transfer to this server", Placeholder.unparsed("server", message.fromServer), Placeholder.component("prefix",prefix)))
+        try {
+            val message = messageRQueue.peek()
+            logger.debug(MiniMessage.miniMessage().deserialize("Pull message queue"))
+            if (message != null) {
+                logger.debug(MiniMessage.miniMessage().deserialize("Found message"))
+                val player = Bukkit.getPlayer(message.userId()) ?: return
+                logger.debug(MiniMessage.miniMessage().deserialize("Found player"))
+                if (!player.hasPermission("clipboardconnect.service.load")) return
+                logger.debug(MiniMessage.miniMessage().deserialize("Player permission check ok"))
+                if (syncPull(BukkitAdapter.adapt(player))) {
+                    logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
+                    player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server", Placeholder.unparsed("server", message.fromServer()), Placeholder.component("prefix",prefix)))
+                }
+                logger.debug(MiniMessage.miniMessage().deserialize("Remove message from queue"))
+                messageRQueue.remove(message)
             }
-            logger.debug(MiniMessage.miniMessage().deserialize("Remove message from queue"))
-            messageRQueue.remove(message)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Bukkit.getPluginManager().disablePlugin(plugin)
         }
     }
 
