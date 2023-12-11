@@ -15,7 +15,7 @@ class ServerNamePrompt : StringPrompt() {
         return MiniMessage.miniMessage().deserialize("<green>What is the name of the server instance in the network? <gray>(example: <gold>Lobby-1<gray>)")
     }
 
-    override fun acceptInput(context: ConversationContext, input: String?): Prompt? {
+    override fun acceptInput(context: ConversationContext, input: String?): Prompt {
         input?.let {
             context.setSessionData(SetupKey.SERVER_NAME, it)
         }

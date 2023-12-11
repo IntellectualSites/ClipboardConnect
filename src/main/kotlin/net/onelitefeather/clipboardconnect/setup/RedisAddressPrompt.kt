@@ -15,7 +15,7 @@ class RedisAddressPrompt : StringPrompt() {
         return MiniMessage.miniMessage().deserialize("<green>What is the address of redis ? <gray>(<gold>Example format: \"redis://127.0.0.1:6379\"<gray>)")
     }
 
-    override fun acceptInput(context: ConversationContext, input: String?): Prompt? {
+    override fun acceptInput(context: ConversationContext, input: String?): Prompt {
         input?.let {
             context.setSessionData(SetupKey.CONNECTION_ADDRESS, it)
         }
