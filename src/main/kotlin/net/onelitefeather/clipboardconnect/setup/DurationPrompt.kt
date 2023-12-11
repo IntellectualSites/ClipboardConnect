@@ -14,7 +14,7 @@ class DurationPrompt : StringPrompt() {
     override fun getPromptText(context: ConversationContext): Component {
         if (context.getSessionData("parse-error")  != null) {
             context.allSessionData.remove("parse-error")
-            return MiniMessage.miniMessage().deserialize("<red>Something went wrong parsing the duration string, please follow the format!<br><green>How long do you want to keep the clipboards in the Redis memory? <gray>(example: <gold>6h = 6 hours, 2d = 2 days<gray>)")
+            return MiniMessage.miniMessage().deserialize("<red>Something went wrong while parsing the duration string, please follow the format!<br><green>How long do you want to keep the clipboards in the Redis memory? <gray>(example: <gold>6h = 6 hours, 2d = 2 days<gray>)")
         }
         return MiniMessage.miniMessage().deserialize("<green>How long do you want to keep the clipboards in the Redis memory? <gray>(example: <gold>6h = 6 hours<gray>)")
     }
