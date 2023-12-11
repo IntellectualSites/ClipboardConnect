@@ -40,7 +40,6 @@ dependencyResolutionManagement {
             plugin("run.server","xyz.jpenilla.run-paper").version("2.2.2")
             plugin("publish.hangar","io.papermc.hangar-publish-plugin").version("0.1.0")
             plugin("publish.modrinth","com.modrinth.minotaur").version("2.+")
-            plugin("changelog", "org.jetbrains.changelog").version("2.2.0")
         }
     }
 }

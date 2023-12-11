@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.run.server)
     alias(libs.plugins.publish.hangar)
     alias(libs.plugins.publish.modrinth)
-    alias(libs.plugins.changelog)
 }
 
 group = "net.onelitefeather"
@@ -122,25 +121,11 @@ paper {
     }
 }
 
-changelog {
-    version.set(publishData.getVersion(false))
-    path.set("${project.projectDir}/CHANGELOG.md")
-    itemPrefix.set("-")
-    keepUnreleasedSection.set(true)
-    unreleasedTerm.set("[Unreleased]")
-    groups.set(listOf("Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"))
-}
-
 
 hangarPublish {
     publications.register("ClipboardConnect") {
         version.set(publishData.getVersion(true))
         channel.set(System.getenv("HANGAR_CHANNEL"))
-        changelog.set(
-            project.changelog.renderItem(
-                project.changelog.getOrNull(publishData.getVersion(false)) ?: project.changelog.getUnreleased()
-            )
-        )
         apiKey.set(System.getenv("HANGAR_SECRET"))
         id.set("ClipboardConnect")
 
@@ -160,10 +145,4 @@ modrinth {
     uploadFile.set(tasks.shadowJar as Any)
     gameVersions.addAll(supportedMinecraftVersions)
     loaders.add("paper")
-    loaders.add("bukkit")
-    changelog.set(
-        project.changelog.renderItem(
-            project.changelog.getOrNull(publishData.getVersion(false)) ?: project.changelog.getUnreleased()
-        )
-    )
 }
