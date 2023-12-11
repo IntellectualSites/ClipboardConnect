@@ -9,18 +9,18 @@ Clipboard Connect is a dynamic plugin for Minecraft, enabling the synchronizatio
 - (Optional but recommend) Docker and Docker Compose installation
 
 ## Compatibility
-|        | WorldEdit          | FastAsyncWorldEdit |
-|--------|--------------------|--------------------|
-| Plugin | :white_check_mark: | :white_check_mark: |
+|                  | WorldEdit          | FastAsyncWorldEdit |
+|------------------|--------------------|--------------------|
+| ClipboardConnect | :white_check_mark: | :white_check_mark: |
 
 | Version/Tested | Paper              | Bukkit | Spigot |
 |----------------|--------------------|--------|--------|
-| 1.19.4         | :white_check_mark: | :X:    | :x:    |
-| 1.20           | :white_check_mark: | :X:    | :x:    |
-| 1.20.1         | :white_check_mark: | :X:    | :x:    |
-| 1.20.2         | :white_check_mark: | :X:    | :x:    |
-| 1.20.3         | :white_check_mark: | :X:    | :x:    |
-| 1.20.4         | :white_check_mark: | :X:    | :x:    |
+| 1.19.4         | :white_check_mark: | :x:    | :x:    |
+| 1.20           | :white_check_mark: | :x:    | :x:    |
+| 1.20.1         | :white_check_mark: | :x:    | :x:    |
+| 1.20.2         | :white_check_mark: | :x:    | :x:    |
+| 1.20.3         | :white_check_mark: | :x:    | :x:    |
+| 1.20.4         | :white_check_mark: | :x:    | :x:    |
 
 
 ## Motivation
