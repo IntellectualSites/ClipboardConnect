@@ -33,7 +33,6 @@ dependencies {
     paperLibrary(libs.zstd)
     paperLibrary(libs.redis)
     implementation(libs.bstats)
-    paperLibrary(libs.kotlin.jackson)
 
     compileOnly(libs.paper)
     testImplementation(libs.kotlin.test)
