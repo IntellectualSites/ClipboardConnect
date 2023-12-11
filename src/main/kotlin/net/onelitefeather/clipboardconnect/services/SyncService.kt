@@ -74,7 +74,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 logger.debug(MiniMessage.miniMessage().deserialize("Player permission check ok"))
                 if (syncPull(BukkitAdapter.adapt(player))) {
                     logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
-                    player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successful transfer to this server", Placeholder.unparsed("server", message.fromServer()), Placeholder.component("prefix",prefix)))
+                    player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server", Placeholder.unparsed("server", message.fromServer()), Placeholder.component("prefix",prefix)))
                 }
                 logger.debug(MiniMessage.miniMessage().deserialize("Remove message from queue"))
                 messageRQueue.remove(message)
