@@ -20,7 +20,7 @@ import net.onelitefeather.clipboardconnect.services.SyncService
  * @constructor Creates a SaveCommand with the given SyncService and prefix.
  */
 @CommandMethod("clipboardconnect|clipcon")
-class SaveCommand @Inject constructor(private val syncService: SyncService, @Named("prefix") private val prefix: Component){
+class SaveCommand @Inject constructor(private val syncService: SyncService, @Named("prefix") private val prefix: Component, @Named("fawe") private val faweSupport: Boolean){
 
     /**
      * Executes the save command for a clipboard player.
@@ -31,11 +31,18 @@ class SaveCommand @Inject constructor(private val syncService: SyncService, @Nam
     @ProxiedBy("gsave")
     @CommandPermission("clipboardconnect.command.save")
     @CommandDescription("Saves a clipboard global")
-    fun execute(clipboardPlayer: ClipboardPlayer) {
-        if (syncService.syncPush(clipboardPlayer.getWorldEditPlayer(), false)) {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard was successfully uploaded", Placeholder.component("prefix",prefix)))
+    fun execute(clipboardPlayer: ClipboardPlayer)  {
+        val run = Runnable {
+            if (syncService.syncPush(clipboardPlayer.getWorldEditPlayer(), false)) {
+                clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard was successfully uploaded", Placeholder.component("prefix",prefix)))
+            } else {
+                clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><red>Clipboard has some issues to upload", Placeholder.component("prefix",prefix)))
+            }
+        }
+        if (faweSupport) {
+            clipboardPlayer.getWorldEditPlayer().runAsyncIfFree(run)
         } else {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><red>Clipboard has some issues to upload", Placeholder.component("prefix",prefix)))
+            run.run()
         }
     }
 }
