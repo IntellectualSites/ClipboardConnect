@@ -28,6 +28,7 @@ import net.onelitefeather.clipboardconnect.listener.SetupListener
 import net.onelitefeather.clipboardconnect.services.SetupService
 import net.onelitefeather.clipboardconnect.utils.RawTypeMatcher
 import org.bstats.bukkit.Metrics
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
@@ -55,14 +56,16 @@ class ClipboardConnect : JavaPlugin() {
 
     override fun onEnable() {
         val injector = Injector.newInjector()
+
         injector.install(BindingBuilder.create()
             .bind(FileConfiguration::class.java)
             .toInstance(config))
             .install(BindingBuilder.create()
-            .bind(Element
-                .forType(Component::class.java)
-                .requireAnnotation(Qualifiers.named("prefix"))
-            ).toInstance(prefixComponent))
+            .bind(Element.forType(Component::class.java).requireAnnotation(Qualifiers.named("prefix"))).toInstance(prefixComponent))
+            .install(BindingBuilder.create().bind(Element
+                .forType(Boolean::class.java)
+                .requireAnnotation(Qualifiers.named("fawe"))
+            ).toInstance(Bukkit.getPluginManager().getPlugin("FastAsyncWorldEdit") != null))
             .install(BindingBuilder.create()
                 .bindAll(ClipboardConnect::class.java)
                 .scoped(Scopes.SINGLETON)
