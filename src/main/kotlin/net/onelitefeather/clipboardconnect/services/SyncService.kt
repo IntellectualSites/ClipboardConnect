@@ -1,13 +1,16 @@
 package net.onelitefeather.clipboardconnect.services
 
+import com.fastasyncworldedit.core.Fawe
+import com.fastasyncworldedit.core.extent.clipboard.io.FastSchematicWriter
 import com.github.luben.zstd.ZstdInputStream
 import com.github.luben.zstd.ZstdOutputStream
+import com.sk89q.jnbt.NBTOutputStream
 import com.sk89q.worldedit.EmptyClipboardException
-import com.sk89q.worldedit.LocalSession
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extension.platform.Actor
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
+import com.sk89q.worldedit.extent.clipboard.io.SpongeSchematicWriter
 import com.sk89q.worldedit.session.ClipboardHolder
 import jakarta.inject.Inject
 import jakarta.inject.Named
@@ -132,88 +135,80 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 MiniMessage.miniMessage()
                     .deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name))
             )
-            var clipboardLock = Object()
-            if (faweSupport) {
-                val field = LocalSession::class.java.getDeclaredField("clipboardLock")
-                field.isAccessible = true
-                clipboardLock = field.get(session) as Object
-            }
-            synchronized(clipboardLock) {
-                val pushAsync = Runnable {
-                    val clipboardHolder = session.clipboard ?: return@Runnable
-                    logger.debug(
-                        pushMarker,
-                        MiniMessage.miniMessage().deserialize(
-                            "Found actor<player> clipboard holder",
-                            Placeholder.unparsed("player", actor.name)
-                        )
-                    )
 
-                    val clipboard = clipboardHolder.clipboard
-                    logger.debug(
-                        pushMarker,
-                        MiniMessage.miniMessage()
-                            .deserialize("Open actor<player> writer", Placeholder.unparsed("player", actor.name))
+            val pushAsync = Runnable {
+                val clipboardHolder = session.clipboard ?: return@Runnable
+                logger.debug(
+                    pushMarker,
+                    MiniMessage.miniMessage().deserialize(
+                        "Found actor<player> clipboard holder",
+                        Placeholder.unparsed("player", actor.name)
                     )
-                    if (clipboard == null) {
-                        return@Runnable
-                    }
-                    val format = if (faweSupport) {
-                        BuiltInClipboardFormat.FAST
-                    } else {
-                        BuiltInClipboardFormat.SPONGE_SCHEMATIC
-                    }
-                    logger.debug(
-                        pushMarker,
-                        MiniMessage.miniMessage().deserialize(
-                            "Write actor<player> clipboard into stream",
-                            Placeholder.unparsed("player", actor.name)
-                        )
+                )
+                val clipboard = clipboardHolder.clipboard
+                logger.debug(
+                    pushMarker,
+                    MiniMessage.miniMessage()
+                        .deserialize("Open actor<player> writer", Placeholder.unparsed("player", actor.name))
+                )
+                if (clipboard == null) {
+                    return@Runnable
+                }
+
+                val format = if(faweSupport) {
+                    BuiltInClipboardFormat.FAST
+                } else {
+                    BuiltInClipboardFormat.SPONGE_SCHEMATIC
+                }
+                logger.debug(
+                    pushMarker,
+                    MiniMessage.miniMessage().deserialize(
+                        "Write actor<player> clipboard into stream",
+                        Placeholder.unparsed("player", actor.name)
                     )
-                    synchronized(clipboardLock) {
-                        try {
-                            format.getWriter(ZstdOutputStream(stream.outputStream)).use {
-                                it.write(clipboard)
-                                logger.debug(
-                                    pushMarker,
-                                    MiniMessage.miniMessage().deserialize(
-                                        "<green>Clipboard from <actor> was successful written into output stream",
-                                        Placeholder.unparsed("actor", actor.name)
-                                    )
-                                )
-                            }
-                        } catch (e: Exception) {
-                            logger.error(MiniMessage.miniMessage().deserialize(
-                                "<green>Something went wrong to write clipboard",
-                                Placeholder.unparsed("actor", actor.name)
-                            ), e)
-                        }
-                    }
-                    logger.debug(
-                        pushMarker,
-                        MiniMessage.miniMessage().deserialize(
-                            "Set actor<player> clipboard expire to <duration>",
-                            Placeholder.unparsed("player", actor.name),
-                            Placeholder.unparsed("duration", duration.toString())
-                        )
-                    )
-                    stream.expire(duration.toJavaDuration())
-                    if (automatic) {
+                )
+                try {
+                    format.getWriter(ZstdOutputStream(stream.outputStream)).use {
+                        it.write(clipboard)
                         logger.debug(
                             pushMarker,
                             MiniMessage.miniMessage().deserialize(
-                                "Write actor<player> clipboard info into queue",
-                                Placeholder.unparsed("player", actor.name)
+                                "<green>Clipboard from <actor> was successful written into output stream",
+                                Placeholder.unparsed("actor", actor.name)
                             )
                         )
-                        messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
                     }
+
+                } catch (e: Exception) {
+                    logger.error(MiniMessage.miniMessage().deserialize(
+                        "<green>Something went wrong to write clipboard",
+                        Placeholder.unparsed("actor", actor.name)
+                    ), e)
                 }
-                if (faweSupport) {
-                    actor.runAsyncIfFree(pushAsync)
-                } else {
-                    pushAsync.run()
+                logger.debug(
+                    pushMarker,
+                    MiniMessage.miniMessage().deserialize(
+                        "Set actor<player> clipboard expire to <duration>",
+                        Placeholder.unparsed("player", actor.name),
+                        Placeholder.unparsed("duration", duration.toString())
+                    )
+                )
+                stream.expire(duration.toJavaDuration())
+                if (automatic) {
+                    logger.debug(
+                        pushMarker,
+                        MiniMessage.miniMessage().deserialize(
+                            "Write actor<player> clipboard info into queue",
+                            Placeholder.unparsed("player", actor.name)
+                        )
+                    )
+                    messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
                 }
+            }
+            if (faweSupport) {
+                Fawe.instance().getClipboardExecutor().submit(actor.uniqueId, pushAsync)
+            } else {
+                pushAsync.run()
             }
         } catch (e: EmptyClipboardException) {
             return false
