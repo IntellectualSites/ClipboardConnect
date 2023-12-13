@@ -57,7 +57,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
     private val serverName = config.getString("servername") ?: "Unknown"
     private val codec = TypedJsonJacksonCodec(ClipboardMessage::class.java)
     private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName,codec)
-    private val messageUUIDRQueue = redisson.getQueue<String>(topicName)
+    private val messageUUIDRQueue = redisson.getQueue<String>(topicNameUUID)
     private val duration: Duration = loadDuration()
     private val pushMarker = MarkerFactory.getMarker("Sync Push")
     private val pullMarker = MarkerFactory.getMarker("Sync Pull")
