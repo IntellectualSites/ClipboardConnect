@@ -21,6 +21,7 @@ import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
+import org.redisson.client.RedisConnectionException
 import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.config.Config
 import org.slf4j.MarkerFactory
@@ -95,6 +96,12 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 return Redisson.create(config)
             } catch (e: IOException) {
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to load redis.yml"), e)
+                plugin.server.pluginManager.disablePlugin(plugin)
+            } catch (e: RedisConnectionException) {
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to create a redis connection"), e)
+                plugin.server.pluginManager.disablePlugin(plugin)
+            } catch (e: RedisConnectionException) {
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong to create a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
         }
