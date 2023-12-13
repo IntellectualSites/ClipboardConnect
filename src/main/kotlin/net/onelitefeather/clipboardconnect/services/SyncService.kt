@@ -100,7 +100,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
             } catch (e: RedisConnectionException) {
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to create a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
-            } catch (e: RedisConnectionException) {
+            } catch (e: Exception) {
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong to create a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
@@ -115,12 +115,15 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @param automatic Flag indicating if the synchronization is automatic or manual. Defaults to false.
      * @return True if the synchronization and save were successful, false otherwise.
      */
+    @Suppress("Deprecation")
     fun syncPush(actor: Actor, automatic: Boolean = true): Boolean {
         logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
-            plugin.componentLogger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
-            stream.delete()
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
+            if (stream.delete()) {
+                logger.error(pushMarker, MiniMessage.miniMessage().deserialize("Something went wrong to delete content from <player>", Placeholder.unparsed("player", actor.name)))
+            }
         }
         val session = WorldEdit.getInstance().sessionManager.get(actor)
         logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
@@ -153,6 +156,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @param actor The actor whose clipboard needs to be synchronized and pulled.
      * @return True if the synchronization and pull were successful, false otherwise.
      */
+    @Suppress("Deprecation")
     fun syncPull(actor: Actor): Boolean {
         logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
