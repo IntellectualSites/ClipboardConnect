@@ -24,6 +24,9 @@ repositories {
 
 dependencies {
     compileOnly(libs.worldedit)
+    compileOnly(platform(libs.fawe.bom))
+    compileOnly(libs.fawe.core)
+    compileOnly(libs.fawe.bukkit)
 
     paperLibrary(libs.cloud.paper)
     paperLibrary(libs.cloud.annotations)
