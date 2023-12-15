@@ -98,10 +98,10 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to load redis.yml"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             } catch (e: RedisConnectionException) {
-                logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to create a redis connection"), e)
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to initialize a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             } catch (e: Exception) {
-                logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong to create a redis connection"), e)
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong while trying to initialize a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
         }
@@ -120,13 +120,13 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
         logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
-            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
+            logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor <player> stream from redis", Placeholder.unparsed("player", actor.name)))
             if (stream.delete()) {
                 logger.error(pushMarker, MiniMessage.miniMessage().deserialize("Something went wrong to delete content from <player>", Placeholder.unparsed("player", actor.name)))
             }
         }
         val session = WorldEdit.getInstance().sessionManager.get(actor)
-        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
+        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Find actor <player> session", Placeholder.unparsed("player", actor.name)))
         try {
             val clipboardHolder = session.clipboard ?: return false
             logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Found actor<player> clipboard holder", Placeholder.unparsed("player", actor.name)))
@@ -158,7 +158,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      */
     @Suppress("Deprecation")
     fun syncPull(actor: Actor): Boolean {
-        logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
+        logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor <player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
             logger.debug(pullMarker,
