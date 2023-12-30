@@ -31,7 +31,7 @@ The primary focus of Clipboard Connect is the synchronization of WorldEdit clipb
 
 ## More Information / External Links
 - Hangar: [https://hangar.papermc.io/OneLiteFeather/ClipboardConnect](https://hangar.papermc.io/OneLiteFeather/ClipboardConnect)
-- Modrinth: [https://modrinth.com/plugin/clipboard-connect](https://modrinth.com/plugin/clipboard-connect)
+- Modrinth: [https://modrinth.com/plugin/clipboardconnect](https://modrinth.com/plugin/clipboardconnect)
 - Discord: [https://discord.gg/intellectualsites](https://discord.gg/intellectualsites)
 - Wiki: [https://intellectualsites.gitbook.io/clipboard-connect/](https://intellectualsites.gitbook.io/clipboard-connect/readme)
 
