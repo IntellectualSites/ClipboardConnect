@@ -17,6 +17,7 @@ group = "net.onelitefeather"
 version = "1.0.0-SNAPSHOT"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://maven.enginehub.org/repo/")
@@ -28,9 +29,9 @@ dependencies {
     compileOnly(libs.fawe.core)
     compileOnly(libs.fawe.bukkit)
 
-    paperLibrary(libs.cloud.paper)
-    paperLibrary(libs.cloud.annotations)
-    paperLibrary(libs.cloud.minecraft.extras)
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.annotations)
+    implementation(libs.cloud.minecraft.extras)
     paperLibrary(libs.aerogel)
     paperLibrary(libs.zstd)
     paperLibrary(libs.redis)
