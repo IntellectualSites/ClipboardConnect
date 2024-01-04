@@ -4,7 +4,7 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
 
 plugins {
-    kotlin("jvm") version "1.9.21"
+    kotlin("jvm") version "1.9.22"
     alias(libs.plugins.paper.yml)
     alias(libs.plugins.publishdata)
     alias(libs.plugins.shadow)
