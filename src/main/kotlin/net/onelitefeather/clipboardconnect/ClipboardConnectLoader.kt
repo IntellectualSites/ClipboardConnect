@@ -10,19 +10,23 @@ import org.eclipse.aether.graph.Dependency
 import org.eclipse.aether.repository.RemoteRepository
 import java.io.InputStreamReader
 
-
+@Suppress( "UnstableApiUsage", "UnstableApiUsage", "UnstableApiUsage", "UnstableApiUsage", "UnstableApiUsage",
+    "UnstableApiUsage", "UnstableApiUsage"
+)
 class ClipboardConnectLoader : PluginLoader {
     override fun classloader(classpathBuilder: PluginClasspathBuilder) {
         val gson = Gson()
         val libs = javaClass.classLoader.getResourceAsStream("paper-libraries.json")
-        val lib = gson.fromJson(InputStreamReader(libs), PaperLib::class.java)
-        val resolver = MavenLibraryResolver()
-        lib.repositories.forEach { name, url ->
-            resolver.addRepository(RemoteRepository.Builder(name, "default", url).build())
+        libs?.let {
+            val lib = gson.fromJson(InputStreamReader(libs), PaperLib::class.java)
+            val resolver = MavenLibraryResolver()
+            lib.repositories.forEach { name, url ->
+                resolver.addRepository(RemoteRepository.Builder(name, "default", url).build())
+            }
+            lib.dependencies.forEach {
+                resolver.addDependency(Dependency(DefaultArtifact(it), null))
+            }
+            classpathBuilder.addLibrary(resolver)
         }
-        lib.dependencies.forEach {
-            resolver.addDependency(Dependency(DefaultArtifact(it), null))
-        }
-        classpathBuilder.addLibrary(resolver)
     }
 }

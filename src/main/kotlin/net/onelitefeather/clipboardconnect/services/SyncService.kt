@@ -1,16 +1,13 @@
 package net.onelitefeather.clipboardconnect.services
 
 import com.fastasyncworldedit.core.Fawe
-import com.fastasyncworldedit.core.extent.clipboard.io.FastSchematicWriter
 import com.github.luben.zstd.ZstdInputStream
 import com.github.luben.zstd.ZstdOutputStream
-import com.sk89q.jnbt.NBTOutputStream
 import com.sk89q.worldedit.EmptyClipboardException
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
 import com.sk89q.worldedit.extension.platform.Actor
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
-import com.sk89q.worldedit.extent.clipboard.io.SpongeSchematicWriter
 import com.sk89q.worldedit.session.ClipboardHolder
 import jakarta.inject.Inject
 import jakarta.inject.Named
@@ -25,6 +22,7 @@ import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
+import org.redisson.client.RedisConnectionException
 import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.config.Config
 import org.slf4j.MarkerFactory
@@ -107,6 +105,12 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 return Redisson.create(config)
             } catch (e: IOException) {
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to load redis.yml"), e)
+                plugin.server.pluginManager.disablePlugin(plugin)
+            } catch (e: RedisConnectionException) {
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to initialize a redis connection"), e)
+                plugin.server.pluginManager.disablePlugin(plugin)
+            } catch (e: Exception) {
+                logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong while trying to initialize a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
         }
@@ -223,6 +227,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @param actor The actor whose clipboard needs to be synchronized and pulled.
      * @return True if the synchronization and pull were successful, false otherwise.
      */
+    @Suppress("Deprecation")
     fun syncPull(actor: Actor): Boolean {
             logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
             val stream = redisson.getBinaryStream(actor.uniqueId.toString())

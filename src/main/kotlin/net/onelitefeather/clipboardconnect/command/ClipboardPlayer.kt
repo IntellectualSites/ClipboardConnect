@@ -14,6 +14,7 @@ import org.bukkit.entity.Player
  * @property player The player associated with this ClipboardPlayer
  * @constructor Creates a ClipboardPlayer with the given player
  */
+@Suppress("Deprecation", "UnstableApiUsage")
 class ClipboardPlayer(private val player: Player) : ClipboardSender(player), Conversable {
 
     private val conversationTracker = ConversationTracker()
