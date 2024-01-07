@@ -45,7 +45,7 @@ tasks {
         useJUnitPlatform()
     }
     runServer {
-        minecraftVersion("1.20.2")
+        minecraftVersion("1.20.4")
     }
     shadowJar {
         relocate("org.bstats", "net.onelitefeather.clipboardconnect.org.bstats")
@@ -61,6 +61,7 @@ val supportedMinecraftVersions = listOf(
     "1.20.1",
     "1.20.2",
     "1.20.3",
+    "1.20.4"
 )
 
 publishData {
