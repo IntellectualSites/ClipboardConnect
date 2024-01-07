@@ -24,7 +24,7 @@ dependencyResolutionManagement {
             library("cloud.annotations", "cloud.commandframework", "cloud-annotations").versionRef("cloud")
             library("cloud.minecraft.extras", "cloud.commandframework", "cloud-minecraft-extras").versionRef("cloud")
 
-            library("redis", "org.redisson","redisson").version("3.25.0")
+            library("redis", "org.redisson","redisson").version("3.25.2")
 
             library("kotlin.test", "org.jetbrains.kotlin", "kotlin-test").withoutVersion()
             library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.16.+")
