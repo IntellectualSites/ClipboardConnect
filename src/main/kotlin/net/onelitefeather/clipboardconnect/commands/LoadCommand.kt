@@ -19,7 +19,7 @@ import net.onelitefeather.clipboardconnect.services.SyncService
  * @param prefix The prefix component for message formatting
  */
 @CommandMethod("clipboardconnect|clipcon")
-class LoadCommand @Inject constructor(private val syncService: SyncService, @Named("prefix") private val prefix: Component){
+class LoadCommand @Inject constructor(private val syncService: SyncService, @Named("prefix") private val prefix: Component, @Named("fawe") private val faweSupport: Boolean){
 
     /**
      * Executes the load command to load a clipboard global.
@@ -31,10 +31,28 @@ class LoadCommand @Inject constructor(private val syncService: SyncService, @Nam
     @CommandPermission("clipboardconnect.command.load")
     @CommandDescription("Loads a clipboard global")
     fun execute(clipboardPlayer: ClipboardPlayer) {
-        if (syncService.syncPull(clipboardPlayer.getWorldEditPlayer())) {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard was successfully loaded", Placeholder.component("prefix",prefix)))
-        } else {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><red>Clipboard has some issues to load", Placeholder.component("prefix",prefix)))
+        val run = Runnable {
+            if (syncService.syncPull(clipboardPlayer.getWorldEditPlayer())) {
+                clipboardPlayer.sendMessage(
+                    MiniMessage.miniMessage().deserialize(
+                        "<prefix><green>Clipboard was successfully loaded",
+                        Placeholder.component("prefix", prefix)
+                    )
+                )
+            } else {
+                clipboardPlayer.sendMessage(
+                    MiniMessage.miniMessage().deserialize(
+                        "<prefix><red>Clipboard has some issues to load",
+                        Placeholder.component("prefix", prefix)
+                    )
+                )
+            }
         }
+        if (faweSupport) {
+            clipboardPlayer.getWorldEditPlayer().runAsyncIfFree(run)
+        } else {
+            run.run()
+        }
+
     }
 }

@@ -15,7 +15,7 @@ dependencyResolutionManagement {
         create("libs") {
             library("worldedit", "com.sk89q.worldedit","worldedit-bukkit").version("7.2.17")
 
-            library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.39")
+            library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.40")
             library("fawe.core", "com.fastasyncworldedit", "FastAsyncWorldEdit-Core").withoutVersion()
             library("fawe.bukkit", "com.fastasyncworldedit", "FastAsyncWorldEdit-Bukkit").withoutVersion()
 
@@ -38,7 +38,7 @@ dependencyResolutionManagement {
             plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
             plugin("shadow", "com.github.johnrengelman.shadow").version("8.1.1")
             plugin("run.server","xyz.jpenilla.run-paper").version("2.2.2")
-            plugin("publish.hangar","io.papermc.hangar-publish-plugin").version("0.1.0")
+            plugin("publish.hangar","io.papermc.hangar-publish-plugin").version("0.1.1")
             plugin("publish.modrinth","com.modrinth.minotaur").version("2.+")
         }
     }

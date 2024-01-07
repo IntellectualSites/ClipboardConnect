@@ -7,9 +7,9 @@ import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.services.SyncService
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
-import org.slf4j.Marker
 
 /**
  * Listener class that handles the 'PlayerQuitEvent' when a player quits the server.
@@ -25,8 +25,8 @@ class PlayerQuitListener
      *
      * @param event The PlayerQuitEvent object.
      */
-    @EventHandler
-    fun playerQuit(event: PlayerQuitEvent) {
+    @EventHandler(priority = EventPriority.LOWEST)
+    fun playerQuit(event: PlayerQuitEvent)  {
         val player = event.player
         plugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<player> is logging out", Placeholder.component("player", player.name())))
         if (!player.hasPermission("clipboardconnect.service.save")) return
