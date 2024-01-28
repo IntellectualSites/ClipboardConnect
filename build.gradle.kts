@@ -2,6 +2,7 @@ import de.chojo.Repo
 import io.papermc.hangarpublishplugin.model.Platforms
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import net.minecrell.pluginyml.paper.PaperPluginDescription
+import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
     kotlin("jvm") version "1.9.22"
@@ -46,6 +47,13 @@ tasks {
     }
     runServer {
         minecraftVersion("1.20.4")
+    }
+    register<RunServer>("runServer2") {
+        group = "run paper"
+        minecraftVersion("1.20.4")
+        runDirectory.set(File("run-2"))
+        pluginJars(*rootProject.getTasksByName("shadowJar", false).map { (it as Jar).archiveFile }
+            .toTypedArray())
     }
     shadowJar {
         relocate("org.bstats", "net.onelitefeather.clipboardconnect.org.bstats")
