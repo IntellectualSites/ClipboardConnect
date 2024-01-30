@@ -6,6 +6,7 @@ import com.github.luben.zstd.ZstdOutputStream
 import com.sk89q.worldedit.EmptyClipboardException
 import com.sk89q.worldedit.WorldEdit
 import com.sk89q.worldedit.bukkit.BukkitAdapter
+import com.sk89q.worldedit.bukkit.BukkitPlayer
 import com.sk89q.worldedit.extension.platform.Actor
 import com.sk89q.worldedit.extent.clipboard.io.BuiltInClipboardFormat
 import com.sk89q.worldedit.session.ClipboardHolder
@@ -46,52 +47,45 @@ import kotlin.time.toJavaDuration
  * @property duration The duration for which clipboards are stored in Redis.
  */
 @Singleton
-class SyncService @Inject constructor(private val config: FileConfiguration, private val plugin: ClipboardConnect, @Named("prefix") private val prefix: Component, @Named("fawe") private val faweSupport: Boolean) {
+class SyncService @Inject constructor(
+    private val config: FileConfiguration,
+    private val plugin: ClipboardConnect,
+    @Named("prefix") private val prefix: Component,
+    @Named("fawe") private val faweSupport: Boolean
+) {
 
     private val logger = ComponentLogger.logger(javaClass)
     private val redisson: RedissonClient = buildRedis()
     private val topicName = "ClipboardConnect"
-    private val topicNameUUID = "ClipboardConnect-UUID"
     private val serverName = config.getString("servername") ?: "Unknown"
     private val codec = TypedJsonJacksonCodec(ClipboardMessage::class.java)
-    private val messageRQueue = redisson.getQueue<ClipboardMessage>(topicName,codec)
-    private val messageUUIDRQueue = redisson.getQueue<String>(topicNameUUID)
+    private val waitForUpload = redisson.getList<String>(topicName)
+    private val pubSub = redisson.getTopic(topicName, codec)
     private val duration: Duration = loadDuration()
     private val pushMarker = MarkerFactory.getMarker("Sync Push")
     private val pullMarker = MarkerFactory.getMarker("Sync Pull")
 
 
     init {
-        plugin.server.scheduler.runTaskTimerAsynchronously(plugin, this::pollUpdates, 0, 20)
-        messageRQueue.expire(Duration.parse("5m").toJavaDuration())
-        messageUUIDRQueue.expire(Duration.parse("5m").toJavaDuration())
+        pubSub.addListener(ClipboardMessage::class.java, this::onPollMessage)
     }
 
-    private fun pollUpdates() {
-        try {
-            val message = messageRQueue.peek()
-            logger.debug(MiniMessage.miniMessage().deserialize("Pull message queue"))
-            if (message != null) {
-                logger.debug(MiniMessage.miniMessage().deserialize("Found message"))
-                val player = Bukkit.getPlayer(message.userId()) ?: return
-                if (messageUUIDRQueue.contains(player.uniqueId.toString())) {
-                    return
-                }
-                logger.debug(MiniMessage.miniMessage().deserialize("Found player"))
-                if (!player.hasPermission("clipboardconnect.service.load")) return
-                logger.debug(MiniMessage.miniMessage().deserialize("Player permission check ok"))
-                messageUUIDRQueue.add(player.uniqueId.toString())
-                if (syncPull(BukkitAdapter.adapt(player))) {
-                    logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
-                    player.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server", Placeholder.unparsed("server", message.fromServer()), Placeholder.component("prefix",prefix)))
-                    logger.debug(MiniMessage.miniMessage().deserialize("Remove message from queue"))
-                    messageRQueue.remove(message)
-                    messageUUIDRQueue.remove(player.uniqueId.toString())
-                }
+    private fun onPollMessage(channel: CharSequence, clipboardMessage: ClipboardMessage) {
+        if (channel == topicName) {
+            val message = clipboardMessage;
+            val player = Bukkit.getPlayer(message.userId()) ?: return
+            logger.debug(MiniMessage.miniMessage().deserialize("Found player"))
+            if (!player.hasPermission("clipboardconnect.service.load")) return
+            if (syncPull(BukkitAdapter.adapt(player))) {
+                logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
+                player.sendMessage(
+                    MiniMessage.miniMessage().deserialize(
+                        "<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server",
+                        Placeholder.unparsed("server", message.fromServer()),
+                        Placeholder.component("prefix", prefix)
+                    )
+                )
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Bukkit.getPluginManager().disablePlugin(plugin)
         }
     }
 
@@ -110,7 +104,10 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 logger.error(MiniMessage.miniMessage().deserialize("<red>Failed to initialize a redis connection"), e)
                 plugin.server.pluginManager.disablePlugin(plugin)
             } catch (e: Exception) {
-                logger.error(MiniMessage.miniMessage().deserialize("<red>Something went wrong while trying to initialize a redis connection"), e)
+                logger.error(
+                    MiniMessage.miniMessage()
+                        .deserialize("<red>Something went wrong while trying to initialize a redis connection"), e
+                )
                 plugin.server.pluginManager.disablePlugin(plugin)
             }
         }
@@ -125,11 +122,21 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      * @return True if the synchronization and save were successful, false otherwise.
      */
     @Suppress("DEPRECATION")
-    fun syncPush(actor: Actor, automatic: Boolean = true): Boolean  {
-        logger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
+    fun syncPush(actor: Actor, automatic: Boolean = true): Boolean {
+        logger.debug(
+            pushMarker,
+            MiniMessage.miniMessage()
+                .deserialize("Open actor<player> stream from redis", Placeholder.unparsed("player", actor.name))
+        )
         val stream = redisson.getBinaryStream(actor.uniqueId.toString())
         if (stream.isExists) {
-            plugin.componentLogger.debug(pushMarker, MiniMessage.miniMessage().deserialize("Delete old actor<player> stream from redis", Placeholder.unparsed("player", actor.name)))
+            plugin.componentLogger.debug(
+                pushMarker,
+                MiniMessage.miniMessage().deserialize(
+                    "Delete old actor<player> stream from redis",
+                    Placeholder.unparsed("player", actor.name)
+                )
+            )
             stream.delete()
         }
         try {
@@ -139,7 +146,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                 MiniMessage.miniMessage()
                     .deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name))
             )
-
+            waitForUpload.add(actor.uniqueId.toString())
             val pushAsync = Runnable {
                 val clipboardHolder = session.clipboard ?: return@Runnable
                 logger.debug(
@@ -159,7 +166,7 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                     return@Runnable
                 }
 
-                val format = if(faweSupport) {
+                val format = if (faweSupport) {
                     BuiltInClipboardFormat.FAST
                 } else {
                     BuiltInClipboardFormat.SPONGE_SCHEMATIC
@@ -184,10 +191,12 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                     }
 
                 } catch (e: Exception) {
-                    logger.error(MiniMessage.miniMessage().deserialize(
-                        "<green>Something went wrong to write clipboard",
-                        Placeholder.unparsed("actor", actor.name)
-                    ), e)
+                    logger.error(
+                        MiniMessage.miniMessage().deserialize(
+                            "<green>Something went wrong to write clipboard",
+                            Placeholder.unparsed("actor", actor.name)
+                        ), e
+                    )
                 }
                 logger.debug(
                     pushMarker,
@@ -206,7 +215,8 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
                             Placeholder.unparsed("player", actor.name)
                         )
                     )
-                    messageRQueue.add(ClipboardMessage(actor.uniqueId, serverName))
+                    pubSub.publish(ClipboardMessage(actor.uniqueId, serverName))
+                    waitForUpload.remove(actor.uniqueId.toString())
                 }
             }
             if (faweSupport) {
@@ -229,51 +239,77 @@ class SyncService @Inject constructor(private val config: FileConfiguration, pri
      */
     @Suppress("Deprecation")
     fun syncPull(actor: Actor): Boolean {
-            logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name)))
-            val stream = redisson.getBinaryStream(actor.uniqueId.toString())
-            if (stream.isExists) {
-                logger.debug(pullMarker,
+        if (waitForUpload.contains(actor.uniqueId.toString())) {
+            if (actor is BukkitPlayer) {
+                actor.player.sendMessage(
                     MiniMessage.miniMessage().deserialize(
-                        "<green>Clipboard from <actor> was successful downloaded",
-                        Placeholder.unparsed("actor", actor.name)
+                        "<prefix><gold>The clipboard is still being transferred. Please wait until the clipboard is released.",
+                        Placeholder.component("prefix", prefix)
                     )
                 )
-                logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name)))
-                val session = WorldEdit.getInstance().sessionManager.get(actor)
-                logger.debug(pullMarker, MiniMessage.miniMessage().deserialize("Open actor<player> reader", Placeholder.unparsed("player", actor.name)))
-                val format = if(faweSupport) {
-                    BuiltInClipboardFormat.FAST
-                } else {
-                    BuiltInClipboardFormat.SPONGE_SCHEMATIC
+            }
+            return false;
+        }
+        logger.debug(
+            pullMarker,
+            MiniMessage.miniMessage()
+                .deserialize("Open actor<player> stream from redis to pull", Placeholder.unparsed("player", actor.name))
+        )
+        val stream = redisson.getBinaryStream(actor.uniqueId.toString())
+        if (stream.isExists) {
+            logger.debug(
+                pullMarker,
+                MiniMessage.miniMessage().deserialize(
+                    "<green>Clipboard from <actor> was successful downloaded",
+                    Placeholder.unparsed("actor", actor.name)
+                )
+            )
+            logger.debug(
+                pullMarker,
+                MiniMessage.miniMessage()
+                    .deserialize("Find actor<player> session", Placeholder.unparsed("player", actor.name))
+            )
+            val session = WorldEdit.getInstance().sessionManager.get(actor)
+            logger.debug(
+                pullMarker,
+                MiniMessage.miniMessage()
+                    .deserialize("Open actor<player> reader", Placeholder.unparsed("player", actor.name))
+            )
+            val format = if (faweSupport) {
+                BuiltInClipboardFormat.FAST
+            } else {
+                BuiltInClipboardFormat.SPONGE_SCHEMATIC
+            }
+            try {
+                format.getReader(ZstdInputStream(stream.inputStream)).use {
+                    logger.debug(
+                        pullMarker,
+                        MiniMessage.miniMessage().deserialize(
+                            "<green>Clipboard from <actor> was successful written into a clipboard holder",
+                            Placeholder.unparsed("actor", actor.name)
+                        )
+                    )
+                    logger.debug(
+                        pullMarker,
+                        MiniMessage.miniMessage().deserialize(
+                            "Create clipboard holder for actor<player>",
+                            Placeholder.unparsed("player", actor.name)
+                        )
+                    )
+                    session.clipboard = ClipboardHolder(it.read())
                 }
-                try {
-                    format.getReader(ZstdInputStream(stream.inputStream)).use {
-                        logger.debug(
-                            pullMarker,
-                            MiniMessage.miniMessage().deserialize(
-                                "<green>Clipboard from <actor> was successful written into a clipboard holder",
-                                Placeholder.unparsed("actor", actor.name)
-                            )
-                        )
-                        logger.debug(
-                            pullMarker,
-                            MiniMessage.miniMessage().deserialize(
-                                "Create clipboard holder for actor<player>",
-                                Placeholder.unparsed("player", actor.name)
-                            )
-                        )
-                        session.clipboard = ClipboardHolder(it.read())
-                    }
-                    return true
-                } catch (e: Exception) {
-                    logger.error(MiniMessage.miniMessage().deserialize(
+                return true
+            } catch (e: Exception) {
+                logger.error(
+                    MiniMessage.miniMessage().deserialize(
                         "<green>Something went wrong to load clipboard",
                         Placeholder.unparsed("actor", actor.name)
-                    ), e)
-                }
-
+                    ), e
+                )
             }
-            return false
+
+        }
+        return false
     }
 
     private fun loadDuration(): Duration {

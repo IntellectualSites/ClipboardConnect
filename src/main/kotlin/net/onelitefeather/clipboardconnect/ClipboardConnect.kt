@@ -23,6 +23,7 @@ import net.onelitefeather.clipboardconnect.commands.LoadCommand
 import net.onelitefeather.clipboardconnect.commands.SaveCommand
 import net.onelitefeather.clipboardconnect.commands.SetupCommand
 import net.onelitefeather.clipboardconnect.conversation.ConversationContext
+import net.onelitefeather.clipboardconnect.listener.PlayerJoinListener
 import net.onelitefeather.clipboardconnect.listener.PlayerQuitListener
 import net.onelitefeather.clipboardconnect.listener.SetupListener
 import net.onelitefeather.clipboardconnect.services.SetupService
@@ -138,6 +139,7 @@ class ClipboardConnect : JavaPlugin() {
         val redisFile = Path(dataFolder.toString(), "redis.yml")
         if (Files.exists(redisFile)) {
             server.pluginManager.registerEvents(injector.instance(PlayerQuitListener::class.java), this)
+            server.pluginManager.registerEvents(injector.instance(PlayerJoinListener::class.java), this)
             injector.instance(AnnotationParser::class.java).parse(injector.instance(SaveCommand::class.java))
             injector.instance(AnnotationParser::class.java).parse(injector.instance(LoadCommand::class.java))
         } else {
