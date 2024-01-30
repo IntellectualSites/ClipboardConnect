@@ -1,2 +1,5 @@
 servername: 'Server-A'
 duration: '6h'
+
+translations:
+  - 'en-US'

@@ -12,7 +12,7 @@ import net.onelitefeather.clipboardconnect.conversation.StringPrompt
  */
 class RedisAddressPrompt : StringPrompt() {
     override fun getPromptText(context: ConversationContext): Component {
-        return MiniMessage.miniMessage().deserialize("<green>What is the address of redis ? <gray>(<gold>Example format: \"redis://127.0.0.1:6379\"<gray>)")
+        return Component.translatable("setup.prompt.redis.ask")
     }
 
     override fun acceptInput(context: ConversationContext, input: String?): Prompt {

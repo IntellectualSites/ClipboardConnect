@@ -78,13 +78,7 @@ class SyncService @Inject constructor(
             if (!player.hasPermission("clipboardconnect.service.load")) return
             if (syncPull(BukkitAdapter.adapt(player))) {
                 logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
-                player.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server",
-                        Placeholder.unparsed("server", message.fromServer()),
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                player.sendMessage(Component.translatable("service.clipboard.successfully.pulled").arguments(prefix, Component.text(message.fromServer())))
             }
         }
     }
@@ -216,8 +210,8 @@ class SyncService @Inject constructor(
                         )
                     )
                     pubSub.publish(ClipboardMessage(actor.uniqueId, serverName))
-                    waitForUpload.remove(actor.uniqueId.toString())
                 }
+                waitForUpload.remove(actor.uniqueId.toString())
             }
             if (faweSupport) {
                 Fawe.instance().getClipboardExecutor().submit(actor.uniqueId, pushAsync)
@@ -241,12 +235,7 @@ class SyncService @Inject constructor(
     fun syncPull(actor: Actor): Boolean {
         if (waitForUpload.contains(actor.uniqueId.toString())) {
             if (actor is BukkitPlayer) {
-                actor.player.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><gold>The clipboard is still being transferred. Please wait until the clipboard is released.",
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                actor.player.sendMessage(Component.translatable("service.clipboard.wait.for.transfer").arguments(prefix))
             }
             return false;
         }

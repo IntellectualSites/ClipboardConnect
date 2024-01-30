@@ -15,9 +15,9 @@ class FinishPrompt : MessagePrompt() {
     override fun getPromptText(context: ConversationContext): Component {
 
         return if(context.getSessionData(SetupKey.DOCKER_COMPOSE) != null) {
-            MiniMessage.miniMessage().deserialize("<click:COPY_TO_CLIPBOARD:'docker-compose up -d'><green>Setup completed, all settings are now generated! You need to restart your server to get enable the plugin <bold>also run before restart \"docker-compose up -d\" to start the redis instance</bold><gray>(Click the message)</click>")
+            Component.translatable("setup.prompt.finish.compose")
         } else {
-            MiniMessage.miniMessage().deserialize("<green>Setup completed, all settings are now generated! You need to restart your server to get enable the plugin")
+            Component.translatable("setup.prompt.finish.normal")
         }
     }
 

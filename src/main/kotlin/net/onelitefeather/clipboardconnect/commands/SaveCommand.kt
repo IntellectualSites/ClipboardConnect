@@ -33,9 +33,9 @@ class SaveCommand @Inject constructor(private val syncService: SyncService, @Nam
     @CommandDescription("Saves a clipboard global")
     fun execute(clipboardPlayer: ClipboardPlayer)  {
         if (syncService.syncPush(clipboardPlayer.getWorldEditPlayer(), false)) {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><green>Clipboard was successfully uploaded", Placeholder.component("prefix",prefix)))
+            clipboardPlayer.sendMessage(Component.translatable("command.clipboard.successfully.uploaded").arguments(prefix))
         } else {
-            clipboardPlayer.sendMessage(MiniMessage.miniMessage().deserialize("<prefix><red>Clipboard has some issues to upload", Placeholder.component("prefix",prefix)))
+            clipboardPlayer.sendMessage(Component.translatable("command.clipboard.failed.to.uploaded").arguments(prefix))
         }
     }
 }
