@@ -12,7 +12,7 @@ import net.onelitefeather.clipboardconnect.conversation.StringPrompt
  */
 class ServerNamePrompt : StringPrompt() {
     override fun getPromptText(context: ConversationContext): Component {
-        return MiniMessage.miniMessage().deserialize("<green>What is the name of the server instance in the network? <gray>(example: <gold>Lobby-1<gray>)")
+        return Component.translatable("setup.prompt.servername.ask")
     }
 
     override fun acceptInput(context: ConversationContext, input: String?): Prompt {

@@ -14,7 +14,7 @@ import net.onelitefeather.clipboardconnect.conversation.Prompt
  */
 class GenerateDockerComposePrompt : BooleanPrompt() {
     override fun getPromptText(context: ConversationContext): Component {
-        return MiniMessage.miniMessage().deserialize("<green>Do you need a generated Docker Compose File or do you know your way around redis yourself? <gray>(Write: <gold>Yes for generate a file inside of plugin folder<gray>)")
+        return Component.translatable("setup.prompt.docker.ask")
     }
 
     override fun acceptValidatedInput(context: ConversationContext, input: Boolean): Prompt {

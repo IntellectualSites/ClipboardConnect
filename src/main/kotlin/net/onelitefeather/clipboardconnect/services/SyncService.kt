@@ -78,13 +78,7 @@ class SyncService @Inject constructor(
             if (!player.hasPermission("clipboardconnect.service.load")) return
             if (syncPull(BukkitAdapter.adapt(player))) {
                 logger.debug(MiniMessage.miniMessage().deserialize("Pull was successful"))
-                player.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><green>Clipboard from <gold><server> <green>was successfully transfered to this server",
-                        Placeholder.unparsed("server", message.fromServer()),
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                player.sendMessage(Component.translatable("service.clipboard.successfully.pulled").arguments(prefix, Component.text(message.fromServer())))
             }
         }
     }

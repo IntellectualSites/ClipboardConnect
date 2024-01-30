@@ -33,19 +33,9 @@ class LoadCommand @Inject constructor(private val syncService: SyncService, @Nam
     fun execute(clipboardPlayer: ClipboardPlayer) {
         val run = Runnable {
             if (syncService.syncPull(clipboardPlayer.getWorldEditPlayer())) {
-                clipboardPlayer.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><green>Clipboard was successfully loaded",
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                clipboardPlayer.sendMessage(Component.translatable("command.clipboard.successfully.loaded").arguments(prefix))
             } else {
-                clipboardPlayer.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><red>Clipboard has some issues to load",
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                clipboardPlayer.sendMessage(Component.translatable("command.clipboard.failed.to.loaded").arguments(prefix))
             }
         }
         if (faweSupport) {

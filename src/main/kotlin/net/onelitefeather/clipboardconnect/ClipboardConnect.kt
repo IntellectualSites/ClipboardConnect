@@ -15,8 +15,12 @@ import dev.derklaro.aerogel.util.Qualifiers
 import dev.derklaro.aerogel.util.Scopes
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.translation.GlobalTranslator
+import net.kyori.adventure.translation.TranslationRegistry
+import net.kyori.adventure.util.UTF8ResourceBundleControl
 import net.onelitefeather.clipboardconnect.command.ClipboardPlayer
 import net.onelitefeather.clipboardconnect.command.ClipboardSender
 import net.onelitefeather.clipboardconnect.commands.LoadCommand
@@ -27,6 +31,7 @@ import net.onelitefeather.clipboardconnect.listener.PlayerJoinListener
 import net.onelitefeather.clipboardconnect.listener.PlayerQuitListener
 import net.onelitefeather.clipboardconnect.listener.SetupListener
 import net.onelitefeather.clipboardconnect.services.SetupService
+import net.onelitefeather.clipboardconnect.translations.PluginTranslationRegistry
 import net.onelitefeather.clipboardconnect.utils.RawTypeMatcher
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
@@ -34,7 +39,10 @@ import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import java.io.IOException
+import java.net.URLClassLoader
 import java.nio.file.Files
+import java.util.*
 import kotlin.io.path.Path
 
 /**
@@ -81,6 +89,52 @@ class ClipboardConnect : JavaPlugin() {
             InjectionSetting.INHERITED_FIELDS,
             InjectionSetting.RUN_POST_CONSTRUCT_LISTENERS
         ))
+    }
+
+    @Inject
+    private fun registerTranslations() {
+        val translationRegistry: TranslationRegistry = PluginTranslationRegistry(
+            TranslationRegistry.create(
+                Key.key(
+                    "clipboardconnect",
+                    "translations"
+                )
+            )
+        )
+        translationRegistry.defaultLocale(Locale.US)
+        val langFolder = dataFolder.toPath().resolve("lang")
+        if (Files.exists(langFolder)) {
+            try {
+                URLClassLoader(arrayOf(langFolder.toUri().toURL())).use { urlClassLoader ->
+                    config.getStringList("translations").stream().map { languageTag: String ->
+                        Locale.forLanguageTag(
+                            languageTag
+                        )
+                    }.forEach { r: Locale ->
+                        val bundle = ResourceBundle.getBundle(
+                            "clipboardconnect",
+                            r,
+                            urlClassLoader,
+                            UTF8ResourceBundleControl.get()
+                        )
+                        translationRegistry.registerAll(r, bundle, false)
+                    }
+                }
+            } catch (e: IOException) {
+                throw RuntimeException(e)
+            }
+        } else {
+            config.getStringList("translations").stream().map { languageTag: String ->
+                Locale.forLanguageTag(
+                    languageTag
+                )
+            }.forEach { r: Locale ->
+                val bundle =
+                    ResourceBundle.getBundle("clipboardconnect", r, UTF8ResourceBundleControl.get())
+                translationRegistry.registerAll(r, bundle, false)
+            }
+        }
+        GlobalTranslator.translator().addSource(translationRegistry)
     }
 
     @Inject
