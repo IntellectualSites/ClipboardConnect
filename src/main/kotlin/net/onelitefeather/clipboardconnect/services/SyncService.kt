@@ -210,8 +210,8 @@ class SyncService @Inject constructor(
                         )
                     )
                     pubSub.publish(ClipboardMessage(actor.uniqueId, serverName))
-                    waitForUpload.remove(actor.uniqueId.toString())
                 }
+                waitForUpload.remove(actor.uniqueId.toString())
             }
             if (faweSupport) {
                 Fawe.instance().getClipboardExecutor().submit(actor.uniqueId, pushAsync)
@@ -235,12 +235,7 @@ class SyncService @Inject constructor(
     fun syncPull(actor: Actor): Boolean {
         if (waitForUpload.contains(actor.uniqueId.toString())) {
             if (actor is BukkitPlayer) {
-                actor.player.sendMessage(
-                    MiniMessage.miniMessage().deserialize(
-                        "<prefix><gold>The clipboard is still being transferred. Please wait until the clipboard is released.",
-                        Placeholder.component("prefix", prefix)
-                    )
-                )
+                actor.player.sendMessage(Component.translatable("service.clipboard.wait.for.transfer").arguments(prefix))
             }
             return false;
         }
