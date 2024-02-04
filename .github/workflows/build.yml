@@ -26,7 +26,7 @@ jobs:
           cache: gradle
           java-version: 17
       - name: Clean Build
-        run: ./gradlew clean shadowJar --no-daemon
+        run: ./gradlew clean shadowJar
       - name: Determine release status
         if: ${{ runner.os == 'Linux' }}
         run: |
@@ -42,13 +42,13 @@ jobs:
           path: build/libs/ClipboardConnect-*.jar
       - name: Publish to hangar
         if: ${{ runner.os == 'Linux' && env.STATUS == 'release' && github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-        run: ./gradlew publishAllPublicationsToHangar --no-daemon
+        run: ./gradlew publishAllPublicationsToHangar
         env:
           HANGAR_SECRET: ${{secrets.HANGAR_KEY}}
           HANGAR_CHANNEL: "Release"
       - name: Publish to hangar snapshot
         if: ${{ runner.os == 'Linux' && env.STATUS != 'release' && github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-        run: ./gradlew publishAllPublicationsToHangar --no-daemon
+        run: ./gradlew publishAllPublicationsToHangar
         env:
           HANGAR_SECRET: ${{secrets.HANGAR_KEY}}
           HANGAR_CHANNEL: "Snapshot"
