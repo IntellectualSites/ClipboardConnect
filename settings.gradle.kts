@@ -35,7 +35,7 @@ dependencyResolutionManagement {
             library("bstats", "org.bstats", "bstats-bukkit").version("3.0.2")
 
             plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
-            plugin("publishdata", "de.chojo.publishdata").version("1.2.5")
+            plugin("publishdata", "de.chojo.publishdata").version("1.4.0")
             plugin("shadow", "com.github.johnrengelman.shadow").version("8.1.1")
             plugin("run.server","xyz.jpenilla.run-paper").version("2.2.2")
             plugin("publish.hangar","io.papermc.hangar-publish-plugin").version("0.1.1")
