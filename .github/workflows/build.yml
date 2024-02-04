@@ -42,13 +42,13 @@ jobs:
           path: build/libs/ClipboardConnect-*.jar
       - name: Publish to hangar
         if: ${{ runner.os == 'Linux' && env.STATUS == 'release' && github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-        run: ./gradlew publishAllPublicationsToHangar
+        run: ./gradlew publishAllPublicationsToHangar --no-daemon
         env:
           HANGAR_SECRET: ${{secrets.HANGAR_KEY}}
           HANGAR_CHANNEL: "Release"
       - name: Publish to hangar snapshot
         if: ${{ runner.os == 'Linux' && env.STATUS != 'release' && github.event_name == 'push' && github.ref == 'refs/heads/main'}}
-        run: ./gradlew publishAllPublicationsToHangar
+        run: ./gradlew publishAllPublicationsToHangar --no-daemon
         env:
           HANGAR_SECRET: ${{secrets.HANGAR_KEY}}
           HANGAR_CHANNEL: "Snapshot"
