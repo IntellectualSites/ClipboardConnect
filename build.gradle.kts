@@ -5,7 +5,7 @@ import net.minecrell.pluginyml.paper.PaperPluginDescription
 import xyz.jpenilla.runpaper.task.RunServer
 
 plugins {
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version "1.9.23"
     alias(libs.plugins.paper.yml)
     alias(libs.plugins.publishdata)
     alias(libs.plugins.shadow)
