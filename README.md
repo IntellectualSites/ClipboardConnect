@@ -21,6 +21,8 @@ Clipboard Connect is a dynamic plugin for Minecraft, enabling the synchronizatio
 | 1.20.2         | :white_check_mark: | :x:    | :x:    |
 | 1.20.3         | :white_check_mark: | :x:    | :x:    |
 | 1.20.4         | :white_check_mark: | :x:    | :x:    |
+| 1.20.5         | :white_check_mark: | :x:    | :x:    |
+| 1.20.6         | :white_check_mark: | :x:    | :x:    |
 
 
 ## Motivation
