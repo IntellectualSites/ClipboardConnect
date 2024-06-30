@@ -46,11 +46,11 @@ tasks {
         useJUnitPlatform()
     }
     runServer {
-        minecraftVersion("1.20.6")
+        minecraftVersion("1.21")
     }
-    register<RunServer>("runServer2") {
+    register<RunServer>("runServer-secondary") {
         group = "run paper"
-        minecraftVersion("1.20.6")
+        minecraftVersion("1.21")
         runDirectory.set(File("run-2"))
         pluginJars(*rootProject.getTasksByName("shadowJar", false).map { (it as Jar).archiveFile }
             .toTypedArray())
@@ -72,6 +72,7 @@ val supportedMinecraftVersions = listOf(
     "1.20.4",
     "1.20.5",
     "1.20.6",
+    "1.21"
 )
 
 publishData {

@@ -138,8 +138,8 @@ class ClipboardConnect : JavaPlugin() {
     }
 
     @Inject
-    private fun bsStats() {
-        Metrics(this, 20460)
+    private fun bsStats(injector: Injector) {
+        injector.install(BindingBuilder.create().toInstance(Metrics(this, 20460)))
     }
 
     /**
