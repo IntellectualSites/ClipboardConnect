@@ -32,7 +32,7 @@ dependencyResolutionManagement {
             library("paper", "io.papermc.paper", "paper-api").version("1.20.2-R0.1-SNAPSHOT")
             library("zstd", "com.github.luben", "zstd-jni").version("1.5.6-6")
 
-            library("bstats", "org.bstats", "bstats-bukkit").version("3.0.2")
+            library("bstats", "org.bstats", "bstats-bukkit").version("3.0.3")
 
             plugin("paper.yml", "net.minecrell.plugin-yml.paper").version("0.6.0")
             plugin("publishdata", "de.chojo.publishdata").version("1.4.0")
