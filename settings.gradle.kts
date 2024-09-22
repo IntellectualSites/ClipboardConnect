@@ -30,7 +30,7 @@ dependencyResolutionManagement {
             library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.17.+")
             library("aerogel", "dev.derklaro.aerogel", "aerogel").version("2.1.0")
             library("paper", "io.papermc.paper", "paper-api").version("1.20.2-R0.1-SNAPSHOT")
-            library("zstd", "com.github.luben", "zstd-jni").version("1.5.6-4")
+            library("zstd", "com.github.luben", "zstd-jni").version("1.5.6-6")
 
             library("bstats", "org.bstats", "bstats-bukkit").version("3.0.2")
 
