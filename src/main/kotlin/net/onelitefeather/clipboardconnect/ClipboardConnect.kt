@@ -1,10 +1,8 @@
 package net.onelitefeather.clipboardconnect
 
 import cloud.commandframework.annotations.AnnotationParser
-import cloud.commandframework.arguments.parser.StandardParameters
 import cloud.commandframework.bukkit.CloudBukkitCapabilities
 import cloud.commandframework.execution.CommandExecutionCoordinator
-import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.paper.PaperCommandManager
 import dev.derklaro.aerogel.Element
 import dev.derklaro.aerogel.Injector
@@ -173,10 +171,7 @@ class ClipboardConnect : JavaPlugin() {
         val annotationParser = AnnotationParser(
             commandManager,
             ClipboardSender::class.java
-        ) { t ->
-            CommandMeta.simple().with(CommandMeta.DESCRIPTION, t.get(StandardParameters.DESCRIPTION, "No description"))
-                .build()
-        }
+        )
         injector.install(BindingBuilder.create().bind(Element.forType(annotationParser.javaClass)).bindMatching(RawTypeMatcher.create(annotationParser.javaClass)).toInstance(annotationParser))
     }
 
