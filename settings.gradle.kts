@@ -27,7 +27,7 @@ dependencyResolutionManagement {
             library("redis", "org.redisson","redisson").version("3.36.0")
 
             library("kotlin.test", "org.jetbrains.kotlin", "kotlin-test").withoutVersion()
-            library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.17.+")
+            library("kotlin.jackson", "com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.18.+")
             library("aerogel", "dev.derklaro.aerogel", "aerogel").version("2.1.0")
             library("paper", "io.papermc.paper", "paper-api").version("1.20.2-R0.1-SNAPSHOT")
             library("zstd", "com.github.luben", "zstd-jni").version("1.5.6-6")
