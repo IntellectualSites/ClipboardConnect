@@ -13,7 +13,7 @@ rootProject.name = "ClipboardConnect"
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
-            library("worldedit", "com.sk89q.worldedit","worldedit-bukkit").version("7.3.9")
+            library("worldedit", "com.sk89q.worldedit","worldedit-bukkit").version("7.3.10")
 
             library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.52")
             library("fawe.core", "com.fastasyncworldedit", "FastAsyncWorldEdit-Core").withoutVersion()
