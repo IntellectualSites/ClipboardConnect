@@ -3,21 +3,21 @@ package net.onelitefeather.clipboardconnect.services
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
+import java.nio.file.Files
+import kotlin.time.Duration
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder
 import net.onelitefeather.clipboardconnect.ClipboardConnect
 import net.onelitefeather.clipboardconnect.command.ClipboardPlayer
-import net.onelitefeather.clipboardconnect.conversation.ConversationAbandonedEvent
-import net.onelitefeather.clipboardconnect.conversation.ConversationContext
-import net.onelitefeather.clipboardconnect.conversation.ConversationFactory
-import net.onelitefeather.clipboardconnect.conversation.Prompt
+import net.onelitefeather.clipboardconnect.api.conversation.ConversationAbandonedEvent
+import net.onelitefeather.clipboardconnect.api.conversation.ConversationContext
+import net.onelitefeather.clipboardconnect.api.conversation.ConversationFactory
+import net.onelitefeather.clipboardconnect.api.conversation.Prompt
 import net.onelitefeather.clipboardconnect.setup.SetupKey
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
-import java.nio.file.Files
-import kotlin.time.Duration
 
 /**
  * This class represents a SetupService, which is responsible for managing the setup process
@@ -41,13 +41,15 @@ class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect,
      * @param prompt The `Prompt` to use for the setup procedure.
      * @return void
      */
-    fun startSetup(player: ClipboardPlayer, prompt: Prompt) {
+    fun startSetup(player: ClipboardPlayer, prompt: net.onelitefeather.clipboardconnect.api.conversation.Prompt) {
         javaPlugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("<player> is starting a setup", Placeholder.component("player", player.getCommandSender().name())))
-        ConversationFactory(javaPlugin).withFirstPrompt(prompt).withPrefix { prefix }.addConversationAbandonedListener(this::remove).buildConversation(player).begin()
+        net.onelitefeather.clipboardconnect.api.conversation.ConversationFactory(
+            javaPlugin
+        ).withFirstPrompt(prompt).withPrefix { prefix }.addConversationAbandonedListener(this::remove).buildConversation(player).begin()
         clipboardPlayers.add(player)
     }
 
-    private fun remove(conversationAbandonedEvent: ConversationAbandonedEvent) {
+    private fun remove(conversationAbandonedEvent: net.onelitefeather.clipboardconnect.api.conversation.ConversationAbandonedEvent) {
         this.clipboardPlayers.removeIf {
             it == conversationAbandonedEvent.context.forWhom
         }
@@ -79,7 +81,7 @@ class SetupService @Inject constructor(private val javaPlugin: ClipboardConnect,
      *
      * @param conversationContext The conversation context containing the necessary data.
      */
-    fun generateConfig(conversationContext: ConversationContext) {
+    fun generateConfig(conversationContext: net.onelitefeather.clipboardconnect.api.conversation.ConversationContext) {
         javaPlugin.componentLogger.debug(MiniMessage.miniMessage().deserialize("Generate config"))
         javaPlugin.saveResource(redisFileName, false)
         if(conversationContext.getSessionData(SetupKey.DOCKER_COMPOSE) != null) {

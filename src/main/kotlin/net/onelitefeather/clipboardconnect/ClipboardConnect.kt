@@ -15,6 +15,12 @@ import dev.derklaro.aerogel.util.Qualifiers
 import dev.derklaro.aerogel.util.Scopes
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import java.io.IOException
+import java.net.URLClassLoader
+import java.nio.file.Files
+import java.util.Locale
+import java.util.ResourceBundle
+import kotlin.io.path.Path
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -23,10 +29,7 @@ import net.kyori.adventure.translation.TranslationRegistry
 import net.kyori.adventure.util.UTF8ResourceBundleControl
 import net.onelitefeather.clipboardconnect.command.ClipboardPlayer
 import net.onelitefeather.clipboardconnect.command.ClipboardSender
-import net.onelitefeather.clipboardconnect.commands.LoadCommand
-import net.onelitefeather.clipboardconnect.commands.SaveCommand
-import net.onelitefeather.clipboardconnect.commands.SetupCommand
-import net.onelitefeather.clipboardconnect.conversation.ConversationContext
+import net.onelitefeather.clipboardconnect.api.conversation.ConversationContext
 import net.onelitefeather.clipboardconnect.listener.PlayerJoinListener
 import net.onelitefeather.clipboardconnect.listener.PlayerQuitListener
 import net.onelitefeather.clipboardconnect.listener.SetupListener
@@ -39,11 +42,6 @@ import org.bukkit.command.CommandSender
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import java.io.IOException
-import java.net.URLClassLoader
-import java.nio.file.Files
-import java.util.*
-import kotlin.io.path.Path
 
 /**
  * This class represents a ClipboardConnect plugin that provides functionality
@@ -189,13 +187,10 @@ class ClipboardConnect : JavaPlugin() {
     @Order(150)
     private fun register(injector: Injector) {
         server.pluginManager.registerEvents(injector.instance(SetupListener::class.java), this)
-        injector.instance(AnnotationParser::class.java).parse(injector.instance(SetupCommand::class.java))
         val redisFile = Path(dataFolder.toString(), "redis.yml")
         if (Files.exists(redisFile)) {
             server.pluginManager.registerEvents(injector.instance(PlayerQuitListener::class.java), this)
             server.pluginManager.registerEvents(injector.instance(PlayerJoinListener::class.java), this)
-            injector.instance(AnnotationParser::class.java).parse(injector.instance(SaveCommand::class.java))
-            injector.instance(AnnotationParser::class.java).parse(injector.instance(LoadCommand::class.java))
         } else {
             componentLogger.info(MiniMessage.miniMessage().deserialize("<green>Please run \"/clipboardconnect setup\" ingame"))
         }
@@ -215,7 +210,7 @@ class ClipboardConnect : JavaPlugin() {
      *
      * @param conversationContext The conversation context containing the necessary data.
      */
-    fun generateConfig(conversationContext: ConversationContext) {
+    fun generateConfig(conversationContext: net.onelitefeather.clipboardconnect.api.conversation.ConversationContext) {
         setupService.generateConfig(conversationContext)
     }
 }
