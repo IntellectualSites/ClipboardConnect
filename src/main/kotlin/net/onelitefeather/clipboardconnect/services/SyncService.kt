@@ -13,6 +13,12 @@ import com.sk89q.worldedit.session.ClipboardHolder
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton
+import java.io.IOException
+import java.nio.file.Files
+import kotlin.io.path.Path
+import kotlin.io.path.reader
+import kotlin.time.Duration
+import kotlin.time.toJavaDuration
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger
 import net.kyori.adventure.text.minimessage.MiniMessage
@@ -27,12 +33,6 @@ import org.redisson.client.RedisConnectionException
 import org.redisson.codec.TypedJsonJacksonCodec
 import org.redisson.config.Config
 import org.slf4j.MarkerFactory
-import java.io.IOException
-import java.nio.file.Files
-import kotlin.io.path.Path
-import kotlin.io.path.reader
-import kotlin.time.Duration
-import kotlin.time.toJavaDuration
 
 /**
  * This class is responsible for synchronizing clipboards between servers using Redisson as the message queue.
