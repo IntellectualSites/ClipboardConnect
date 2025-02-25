@@ -23,14 +23,14 @@ public final class SaveCommand {
     public void saveClipboard(final @NonNull CommandContext<? extends ClipboardConnectSender> commandContext) {
         final var actor = commandContext.sender().actor();
         this.plugin.getTransferService().uploadClipboard(actor)
-                .thenAccept(transferStatus -> {
+                .thenAcceptAsync(transferStatus -> {
                     if (Objects.requireNonNull(transferStatus) == TransferStatus.COMPLETED) {
                         commandContext.sender().sendMessage(ClipboardConnect.PREFIX.append(Component.text("Clipboard saved.")));
                     }
-                }).exceptionallyAsync(throwable -> {
+                }, this.plugin.getExecutorService(actor)).exceptionallyAsync(throwable -> {
                     LOGGER.error("Failed to save clipboard", throwable);
                     commandContext.sender().sendMessage(ClipboardConnect.PREFIX.append(Component.text("Failed to save clipboard.")));
                     return null;
-                }, this.plugin.getExecutorService());
+                }, this.plugin.getExecutorService(actor));
     }
 }

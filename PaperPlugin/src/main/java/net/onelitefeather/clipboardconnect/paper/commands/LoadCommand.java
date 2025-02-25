@@ -22,11 +22,11 @@ public final class LoadCommand {
             if (Objects.requireNonNull(transferStatus) == TransferStatus.COMPLETED) {
                 commandContext.sender().sendMessage(ClipboardConnect.PREFIX.append(Component.text("Clipboard loaded.")));
             }
-        }).exceptionallyAsync(throwable -> {
+        }, this.plugin.getExecutorService(actor)).exceptionallyAsync(throwable -> {
             this.plugin.getSLF4JLogger().error("Failed to load clipboard", throwable);
             commandContext.sender().sendMessage(ClipboardConnect.PREFIX.append(Component.text("Failed to load clipboard.")));
             return null;
-        }, this.plugin.getExecutorService());
+        }, this.plugin.getExecutorService(actor));
 
     }
 }

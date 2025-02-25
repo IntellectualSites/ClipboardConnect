@@ -4,7 +4,7 @@ public enum TransferStatus {
     /**
      * The transfer is currently in progress.
      */
-    IN_PROGRESS,
+    EMPTY,
     /**
      * The transfer has been completed successfully.
      */

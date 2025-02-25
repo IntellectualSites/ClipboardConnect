@@ -1,5 +1,6 @@
 package net.onelitefeather.clipboardconnect.paper;
 
+import com.fastasyncworldedit.core.Fawe;
 import com.fastasyncworldedit.core.util.TaskManager;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.extension.platform.Actor;
@@ -14,6 +15,8 @@ import net.onelitefeather.clipboardconnect.api.config.PluginConfigProvider;
 import net.onelitefeather.clipboardconnect.api.event.ClipboardReadyEvent;
 import net.onelitefeather.clipboardconnect.api.transfer.TransferStrategy;
 import net.onelitefeather.clipboardconnect.paper.commands.CommandRegistry;
+import net.onelitefeather.clipboardconnect.paper.listener.PlayerJoinListener;
+import net.onelitefeather.clipboardconnect.paper.listener.PlayerQuitListener;
 import net.onelitefeather.clipboardconnect.paper.transfer.TransferService;
 import net.onelitefeather.clipboardconnect.paper.translations.PluginTranslationRegistry;
 import net.onelitefeather.clipboardconnect.strategies.RedisTransferStrategy;
@@ -39,7 +42,7 @@ public final class ClipboardConnect extends JavaPlugin {
 
 
     public static final Component PREFIX = MiniMessage.miniMessage().deserialize("<gold>[<green>ClipboardConnect<gold>] ");
-    public static final boolean isFastAsyncWorldEdit = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit");
+    public static final boolean IS_FAST_ASYNC_WORLD_EDIT = Bukkit.getPluginManager().isPluginEnabled("FastAsyncWorldEdit");
     private PluginConfig pluginConfig;
     private TransferStrategy transferStrategy;
     private TransferService transferService;
@@ -95,6 +98,8 @@ public final class ClipboardConnect extends JavaPlugin {
         this.transferService = new TransferService(this);
         var commandRegistry = new CommandRegistry(this);
         commandRegistry.registerCommands();
+        getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
     }
 
     private void registerTranslations() {
@@ -185,20 +190,22 @@ public final class ClipboardConnect extends JavaPlugin {
         getSLF4JLogger().info("Loaded strategy model {}", pluginConfig.strategyModel());
     }
 
-    private void clipboardReadyEventCall(Actor actor) {
+    private void clipboardReadyEventCall(final Actor actor) {
         WorldEdit.getInstance().getEventBus().post(ClipboardReadyEvent.create(actor));
     }
 
-    public Executor getExecutorService() {
-        if (isFastAsyncWorldEdit) {
-            return TaskManager.taskManager().getPublicForkJoinPool();
+    // START - WorldEdit Compatibility
+    public Executor getExecutorService(Actor actor) {
+        if (IS_FAST_ASYNC_WORLD_EDIT) {
+            return Fawe.instance().getClipboardExecutor();
         } else {
             return Bukkit.getScheduler().getMainThreadExecutor(this);
         }
     }
+    // END - WorldEdit Compatibility
 
     public TransferService getTransferService() {
-        return transferService;
+        return this.transferService;
     }
 
     public TransferStrategy getTransferStrategy() {

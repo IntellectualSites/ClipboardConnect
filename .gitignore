@@ -44,3 +44,10 @@ bin/
 ### Run server ignore
 run-*
 run/
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/gradle.xml
+/.idea/icon.png
+/.idea/kotlinc.xml
+/.idea/misc.xml
+/.idea/vcs.xml
+/.idea/workspace.xml
