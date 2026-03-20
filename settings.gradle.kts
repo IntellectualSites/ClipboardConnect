@@ -15,7 +15,7 @@ dependencyResolutionManagement {
         create("libs") {
             library("worldedit", "com.sk89q.worldedit","worldedit-bukkit").version("7.3.9")
 
-            library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.52")
+            library("fawe.bom", "com.intellectualsites.bom", "bom-newest").version("1.56")
             library("fawe.core", "com.fastasyncworldedit", "FastAsyncWorldEdit-Core").withoutVersion()
             library("fawe.bukkit", "com.fastasyncworldedit", "FastAsyncWorldEdit-Bukkit").withoutVersion()
 
